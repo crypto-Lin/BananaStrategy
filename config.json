@@ -1,0 +1,44 @@
+{
+  "factor_feature_extract_best":[
+    "macd_feature_01",
+    "macd_feature_02",
+    "macd_feature_03",
+    "kd_feature_01",
+    "kd_feature_02",
+    "kd_feature_03",
+    "ma_feature_01",
+    "ma_feature_02",
+    "rsi_feature_01",
+    "rsi_feature_02",
+    "rsi_feature_03",
+    "atr_feature_01",
+    "bbands_feature_02",
+    "week",
+    "month",
+    "y"
+  ],
+  "predict_timeperiod": 5,
+  "model_params": {
+    "train_test_split": 0.2,
+    "cv_params": {
+      "n_estimators": [400, 500, 600, 700],
+      "max_depth": [3, 4, 5, 6],
+      "min_child_weight": [1, 2, 3],
+      "gamma": [0.1, 0.2, 0.3, 0.4],
+      "colsample_bytree": [0.6, 0.7, 0.8, 0.9],
+      "reg_lambda": [0.05, 0.1, 1],
+      "reg_alpha": [0.05, 0.1, 1],
+      "learning_rate": [0.01, 0.05, 0.1]
+    },
+    "other_params": {
+      "learning_rate": 0.1, "n_estimator": 500, "max_depth": 5, "min_child_weight": 1, "seed": 0, "subsample": 0.8, "colsample_bytree": 0.8, "gamma": 0, "reg_alpha": 0, "reg_lambda": 1
+    }
+  },
+ "factor_feature_extract":[
+
+    "bbands_feature_02",
+    "week",
+
+    "y"
+  ]
+}
