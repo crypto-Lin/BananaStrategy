@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "bananastrategy"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+scikit-learn = "^0.24.0"
+scikit-plot = "^0.3.7"
+pandas = "^1.1"
+xgboost = "^1.4.1"
+sklearn = "^0.0"
+TA-Lib = "^0.4.19"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
