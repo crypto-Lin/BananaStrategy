@@ -8,11 +8,11 @@ import pandas as pd
 
 import logging
 
-data_path = '/Users/li/A-stock-life-jacket/data/'
+data_path = './dataset/A_stock_5d_original/'
 
 def main():
 
-    logging.basicConfig(filename='update_A_stock_daily_data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='update_A_stock_5d_data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logging.getLogger().setLevel(logging.INFO)
 
     auth('15182289113', 'Since1991')
@@ -20,14 +20,14 @@ def main():
 
     today = str(datetime.datetime.now()).split(' ')[0]
     stock_table = get_all_securities(types=['stock'])
-    stock_table.to_csv('/Users/li/A-stock-life-jacket/data/stock_table_original.csv')
+    stock_table.to_csv('./dataset/stock_table_original.csv')
 
 
     for i in range(len(stock_table)):
 
         logging.info(i)
         logging.info('{} is in process.'.format(stock_table['display_name'][i]))
-        #logging.warning('logging starts here!')
+
         start_date = stock_table['start_date'][i]
 
         if not os.path.isfile(data_path + stock_table.index[i].split('.')[0] + '.csv'):
@@ -35,7 +35,7 @@ def main():
             df = get_price(security=stock_table.index[i],
                            start_date=start_date,
                            end_date=today,
-                           frequency='daily',
+                           frequency='5d',
                            fields=None,
                            skip_paused=True,
                            fq='pre', count=None)
@@ -66,7 +66,7 @@ def main():
         bigdata = bigdata.sort_index()
 
         bigdata.to_csv(data_path + stock_table.index[i].split('.')[0] + '.csv')
-        #break
+        break
 
 
 if __name__ == '__main__':

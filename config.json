@@ -24,15 +24,16 @@
 
       "max_depth": [3, 4, 5, 6],
       "min_child_weight": [1, 2, 3],
-      "gamma": [0.1, 0.2, 0.3, 0.4],
-      "colsample_bytree": [0.6, 0.7, 0.8, 0.9],
-      "reg_lambda": [0.05, 0.1, 1],
-      "reg_alpha": [0.05, 0.1, 1],
-      "learning_rate": [0.01, 0.05, 0.1]
+      "gamma": [0, 0.5, 1],
+      "colsample_bytree": [0.7, 0.8, 0.9],
+      "reg_lambda": [0.5, 1],
+      "reg_alpha": [0, 0.5],
+      "learning_rate": [0.1, 0.5]
     },
-    "other_params": {
-      "learning_rate": 0.05, "max_depth": 4, "min_child_weight": 1, "seed": 0, "subsample": 0.8, "colsample_bytree": 0.8, "gamma": 0.2, "reg_alpha": 0.1, "reg_lambda": 0.5
-   , "objective": "binary:logistic" }
+    "train_params": {
+      "learning_rate": 0.1, "max_depth": 4, "min_child_weight": 1, "seed": 0, "subsample": 0.8, "colsample_bytree": 0.8, "gamma": 0.2, "reg_alpha": 0.1, "reg_lambda": 0.5
+   , "objective": "binary:logistic", "eval_metric": "auc" },
+    "save_dir": "saved_models"
   },
  "factor_feature_extract":[
 
@@ -50,3 +51,4 @@
     "y"
   ]
 }
+
