@@ -25,8 +25,39 @@ def add_macd_factor(df):
     return df
 
 
+def add_macd_cross_factor(df):
+    df['macd'], df['macd_signal'], df['macd_hist'] = talib.MACD(df['close'], fastperiod=12, slowperiod=26,
+                                                                    signalperiod=9)
+
+    df = df.dropna(axis=0, how='any')
+    signal_ls = [0]
+
+    for i in range(df.index[0]+1, df.index[-1]+1):
+
+        if df['macd'][i] > df['macd_signal'][i] and df['macd_signal'][i-1] > df['macd'][i-1]:
+            signal_ls.append(1)
+        else:
+            signal_ls.append(0)
+
+    assert (len(df) == len(signal_ls))
+
+    df['macd_cross_up_signal'] = signal_ls
+
+    signal_ls2 = [0]
+    for i in range(df.index[0]+1, df.index[-1]+1):
+        if df['macd'][i] < df['macd_signal'][i] and df['macd_signal'][i - 1] < df['macd'][i - 1]:
+            signal_ls2.append(1)
+        else:
+            signal_ls2.append(0)
+    assert (len(df) == len(signal_ls2))
+    df['macd_cross_down_signal'] = signal_ls2
+
+    return df[1:]
+
+
 def add_kd_factor(df):
-    df['slowk'], df['slowd'] = talib.STOCH(df['high'], df['low'], df['close'], fastk_period=36, slowk_period=9, slowk_matype=0, slowd_period=9, slowd_matype=0)
+    df['slowk'], df['slowd'] = talib.STOCH(df['high'], df['low'], df['close'], fastk_period=36,
+                                           slowk_period=9, slowk_matype=0, slowd_period=9, slowd_matype=0)
     df['kd_feature_01'] = list(map(lambda x, y: int((x-y) > 0), df['slowk'], df['slowd']))
     df['kd_feature_02'] = list(map(lambda x: int(x > 80), df['slowd']))
     df['kd_feature_03'] = list(map(lambda x: int(x < 20), df['slowd']))
@@ -45,6 +76,23 @@ def add_ma_factor(df):
     return df
 
 
+def add_ma_cross_factor(df, m, n): # m < n : m cross n
+    df['ema_'+str(m)] = talib.EMA(df['close'], timeperiod=m)
+    df['ema_'+str(n)] = talib.EMA(df['close'], timeperiod=n)
+    df = df.dropna(axis=0, how='any')
+
+    signal_ls = [0]
+    for i in range(df.index[0]+1, df.index[-1]+1):
+        if df['ema_'+str(m)][i] > df['ema_'+str(n)][i] and df['ema_'+str(m)][i-1] < df['ema_'+str(n)][i-1]:
+            signal_ls.append(1)
+        else:
+            signal_ls.append(0)
+    assert (len(df) == len(signal_ls))
+    df['ema_'+str(m)+'_cross_'+str(n)] = signal_ls
+
+    return df[1:]
+
+
 def add_rsi_factor(df):
     df['rsi_14'] = talib.RSI(df['close'], timeperiod = 14)
     df['rsi_5'] = talib.RSI(df['close'], timeperiod = 5)
@@ -56,14 +104,14 @@ def add_rsi_factor(df):
 
 
 def add_roc_factor(df, n):
-    df['roc_5'] = talib.ROC(df['close'], timeperiod = n)
-    df['rocp_5'] = talib.ROCP(df['close'], timeperiod = n)
+    df['roc_'+str(n)] = talib.ROC(df['close'], timeperiod = n)
+    df['rocp_'+str(n)] = talib.ROCP(df['close'], timeperiod = n)
     df = df.dropna(axis=0, how='any')
 
-    target_y = df['rocp_5'].tolist()[n:]
+    target_y = df['rocp_'+str(n)].tolist()[n:]
     df = df[:-n]
-    df['y1'] = target_y
-    df['y'] = list(map(lambda x: int(x > 0), target_y))
+    df['yp'+str(n)] = target_y
+    df['y'+str(n)] = list(map(lambda x: int(x > 0), target_y))
 
     return df
 

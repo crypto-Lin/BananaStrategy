@@ -17,7 +17,7 @@
     "month",
     "y"
   ],
-  "predict_timeperiod": 5,
+  "predict_timeperiod": [3, 5, 10, 20],
   "model_params": {
     "train_test_split": 0.2,
     "cv_params": {
@@ -37,18 +37,8 @@
   },
  "factor_feature_extract":[
 
-    "bbands_feature_02",
-    "week",
-    "month",
-    "macd_feature_02",
-    "macd_feature_01",
-    "macd_feature_03",
-    "kd_feature_01",
-    "kd_feature_02",
-    "kd_feature_03",
-    "ma_feature_01",
-    "ma_feature_02",
-    "y"
+   "macd_cross_up_signal" ,
+   "macd_cross_down_signal"
   ]
 }
 

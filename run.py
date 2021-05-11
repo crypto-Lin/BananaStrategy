@@ -7,8 +7,10 @@ import os
 import datetime as dt
 from sklearn.model_selection import GridSearchCV
 
-train_file_path = './dataset/A_stock_daily/train.csv'
-test_file_path = './dataset/A_stock_daily/test.csv'
+# train_file_path = './dataset/A_stock_daily/train.csv'
+# test_file_path = './dataset/A_stock_daily/test.csv'
+train_file_path = './dataset/A_stock_5d/train.csv'
+test_file_path = './dataset/A_stock_5d/test.csv'
 configs = json.load(open('config.json', 'r'))
 
 
