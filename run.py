@@ -17,7 +17,7 @@ configs = json.load(open('config.json', 'r'))
 def main():
     if not os.path.exists(configs['model_params']['save_dir']): os.makedirs(configs['model_params']['save_dir'])
     save_dir = configs['model_params']['save_dir']
-    save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S')))
+    save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
     x_train = df_train[configs['factor_feature_extract']]

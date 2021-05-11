@@ -176,3 +176,44 @@ def add_time_factor(df):
     return df
 
 
+def first_raising_limit_factor(df):
+    signal_ls = [0]
+    for i in range(df.index[0]+1, df.index[-1]+1):
+        if ((df['close'][i]-df['open'][i]) / df['open'][i] > 0.09) and ((df['close'][i-1]-df['open'][i-1])/df['open'][i-1] < 0.02):
+            signal_ls.append(1)
+        else:
+            signal_ls.append(0)
+    assert(len(df) == len(signal_ls))
+
+    return df[1:]
+
+
+# below factors are about simple pattern recognition
+def pattern_reconition_factor(df):
+    df['two_crows'] = talib.CDL2CROWS(df['open'], df['high'], df['low'], df['close'])
+    df['three_black_crows'] = talib.CDL3BLACKCROWS(df['open'], df['high'], df['low'], df['close'])
+    df['three_inside'] = talib.CDL3INSIDE(df['open'], df['high'], df['low'], df['close'])
+    df['three_line_strike'] = talib.CDL3LINESTRIKE(df['open'], df['high'], df['low'], df['close'])
+    df['three_outside'] = talib.CDL3OUTSIDE(df['open'], df['high'], df['low'], df['close'])
+    df['three_star_south'] = talib.CDL3STARINSOUTH(df['open'], df['high'], df['low'], df['close'])
+    df['three_white_soldiers'] = talib.CDL3WHITESOLDIERS(df['open'], df['high'], df['low'], df['close'])
+    df['abandoned_baby'] = talib.CDLABANDONEDBABY(df['open'], df['high'], df['low'], df['close'])
+    df['advance_block'] = talib.CDLADVANCEBLOCK(df['open'], df['high'], df['low'], df['close'])
+    df['belt_hold'] = talib.CDLBELTHOLD(df['open'], df['high'], df['low'], df['close'])
+    df['break_away'] = talib.CDLBREAKAWAY(df['open'], df['high'], df['low'], df['close'])
+    df['closing_marubozu'] = talib.CDLCLOSINGMARUBOZU(df['open'], df['high'], df['low'], df['close'])
+    df['conceal_baby_swall'] = talib.CDLCONCEALBABYSWALL(df['open'], df['high'], df['low'], df['close'])
+    df['counter_attack'] = talib.CDLCOUNTERATTACK(df['open'], df['high'], df['low'], df['close'])
+    df['dark_cloud_cover'] = talib.CDLDARKCLOUDCOVER(df['open'], df['high'], df['low'], df['close'])
+    df['doji'] = talib.CDLDOJI(df['open'], df['high'], df['low'], df['close'])
+    df['doji_star'] = talib.CDLDOJISTAR(df['open'], df['high'], df['low'], df['close'])
+    df['dragon_fly_doji'] = talib.CDLDRAGONFLYDOJI(df['open'], df['high'], df['low'], df['close'])
+    df['engulfing'] = talib.CDLENGULFING(df['open'], df['high'], df['low'], df['close'])
+    df['evening_doji_star'] = talib.CDLEVENINGDOJISTAR(df['open'], df['high'], df['low'], df['close'], penetration=0)
+    df['gap_sideside_white'] = talib.CDLGAPSIDESIDEWHITE(df['open'], df['high'], df['low'], df['close'])
+    df['grave_stone_doji'] = talib.CDLGRAVESTONEDOJI(df['open'], df['high'], df['low'], df['close'])
+    df['hammer'] = talib.CDLHAMMER(df['open'], df['high'], df['low'], df['close'])
+    df['morning_doji_star'] = talib.CDLMORNINGDOJISTAR(df['open'], df['high'], df['low'], df['close'], penetration=0)
+    df['on_neck'] = talib.CDLONNECK(df['open'], df['high'], df['low'], df['close'])
+
+    return df

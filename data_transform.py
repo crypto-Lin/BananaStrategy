@@ -30,13 +30,13 @@ def main():
         tmpdf = pd.read_csv(csvfile)
 
         try:
-            # newdf = add_macd_factor(tmpdf)
+            newdf = add_macd_factor(tmpdf)
             # newdf = add_kd_factor(newdf)
             # newdf = add_rsi_factor(newdf)
             # newdf = add_ma_factor(newdf)
             # newdf = add_atr_factor(newdf)
-            # newdf = add_bbands_factor(newdf)
-            newdf = add_macd_cross_factor(tmpdf)
+            newdf = add_bbands_factor(newdf)
+            newdf = add_macd_cross_factor(newdf)
             newdf = add_ma_cross_factor(newdf, 5, 10)
             newdf = add_ma_cross_factor(newdf, 10, 20)
             newdf = add_ma_cross_factor(newdf, 50, 100)
@@ -64,12 +64,12 @@ def main():
     if not os.path.exists('./dataset/A_stock_5d'):
         os.makedirs('./dataset/A_stock_5d')
 
-    df_test = df_test[(df_test['macd_cross_up_signal'] == 1) | (df_test['macd_cross_down_signal'] == 1)] # represent the macd cross signal occurs
+    # represent the macd cross signal occurs
+    # df_test = df_test[(df_test['macd_cross_up_signal'] == 1) | (df_test['macd_cross_down_signal'] == 1)]
     df_test = df_test.reset_index(drop=True)
-    #print(df_test)
-    df_train = df_train[(df_train['macd_cross_up_signal'] == 1) | (df_train['macd_cross_down_signal'] == 1)]
+
+    # df_train = df_train[(df_train['macd_cross_up_signal'] == 1) | (df_train['macd_cross_down_signal'] == 1)]
     df_train = df_train.reset_index(drop=True)
-    #print(df_train)
 
     # df_train.to_csv('./dataset/A_stock_daily/train.csv')
     # df_test.to_csv('./dataset/A_stock_daily/test.csv')
