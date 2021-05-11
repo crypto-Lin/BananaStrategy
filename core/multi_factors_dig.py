@@ -83,10 +83,11 @@ def add_ma_cross_factor(df, m, n): # m < n : m cross n
 
     signal_ls = [0]
     for i in range(df.index[0]+1, df.index[-1]+1):
-        if df['ema_'+str(m)][i] > df['ema_'+str(n)][i] and df['ema_'+str(m)][i-1] < df['ema_'+str(n)][i-1]:
+        if (df['ema_'+str(m)][i] > df['ema_'+str(n)][i]) and (df['ema_'+str(m)][i-1] < df['ema_'+str(n)][i-1]) :
             signal_ls.append(1)
         else:
             signal_ls.append(0)
+    
     assert (len(df) == len(signal_ls))
     df['ema_'+str(m)+'_cross_'+str(n)] = signal_ls
 

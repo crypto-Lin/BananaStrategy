@@ -8,7 +8,9 @@ import pandas as pd
 import json
 import logging
 
-# data_path = './data/'
+pd.options.mode.chained_assignment = None  # default='warn'
+
+#data_path = './data/'
 data_path = './dataset/A_stock_5d_original'
 configs = json.load(open('config.json', 'r'))
 
@@ -37,17 +39,19 @@ def main():
             # newdf = add_atr_factor(newdf)
             newdf = add_bbands_factor(newdf)
             newdf = add_macd_cross_factor(newdf)
+
+
             newdf = add_ma_cross_factor(newdf, 5, 10)
             newdf = add_ma_cross_factor(newdf, 10, 20)
-            newdf = add_ma_cross_factor(newdf, 50, 100)
-            newdf = add_ma_cross_factor(newdf, 50, 200)
+#            newdf = add_ma_cross_factor(newdf, 50, 100)
+#            newdf = add_ma_cross_factor(newdf, 50, 200)
 
             for k in predict_yn:
                 newdf = add_roc_factor(newdf, k)
             newdf = newdf.dropna(axis=0, how='any')
 
             # newdf = add_time_factor(newdf)
-            data_for_train = newdf[feature_select+['y'+str(ele) for ele in predict_yn]]
+            data_for_train = newdf[feature_select]
             test_size = int(len(newdf)*train_test_split)
             df_train = pd.concat([df_train, data_for_train[:-test_size]])
             df_test = pd.concat([df_test, data_for_train[-test_size:]])

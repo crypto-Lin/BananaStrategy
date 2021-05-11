@@ -41,12 +41,10 @@
    "macd_cross_down_signal",
    "ema_5_cross_10",
    "ema_10_cross_20",
-   "ema_50_cross_100",
-   "ema_50_cross_200",
    "bbands_feature_02",
    "macd_feature_01",
    "macd_feature_02",
-   "macd_feature_03"
+   "macd_feature_03",
+   "y3","y5","y10","y20"
  ]
 }
-

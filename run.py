@@ -20,13 +20,15 @@ def main():
     save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
-    x_train = df_train[configs['factor_feature_extract']]
+    df_train = df_train[(df_train['macd_cross_up_signal']==1) | (df_train['macd_cross_down_signal']==1)]
+    x_train = df_train[configs['factor_feature_extract'][:-1]]
     y_train = df_train[configs['factor_feature_extract'][-1]]
     print('训练目标值分布：')
     print(y_train.value_counts())
 
     df_test = pd.read_csv(test_file_path)
-    x_test = df_test[configs['factor_feature_extract']]
+    df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
+    x_test = df_test[configs['factor_feature_extract'][:-1]]
     y_test = df_test[configs['factor_feature_extract'][-1]]
 
     train_params = configs['model_params']['train_params']
@@ -34,8 +36,8 @@ def main():
     clf.fit(x_train, y_train,
         eval_set=[(x_train, y_train), (x_test, y_test)],
         eval_metric='logloss', # 'auc'
-        early_stopping_rounds=5,
-        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=5,metric_name='auc',save_best=True),
+        early_stopping_rounds=100,
+        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=100,metric_name='logloss',save_best=True),
                                    xgb.callback.TrainingCheckPoint(directory=save_fname,name='xbg_binary_classifier')])
 
     evaluate_result = clf.evals_result()
@@ -47,8 +49,8 @@ def main():
     print('Feature importance property:{}'.format(clf.feature_importances_))
 
     # plotting xgboost
-    clf.plot_importance()
-    clf.plot_tree()
+    xgb.plot_importance(clf)
+    # xgb.plot_tree(clf)
 
     # cv_params = configs['model_params']['cv_params']
     cv_params = {}
