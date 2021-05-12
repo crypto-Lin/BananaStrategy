@@ -65,13 +65,23 @@ def add_kd_factor(df):
     return df
 
 
-def add_ma_factor(df):
-    df['ema_50'] = talib.EMA(df['close'], timeperiod = 50)
-    df['ema_200'] = talib.EMA(df['close'], timeperiod = 200)
-    df['sma_60'] = talib.SMA(df['close'], timeperiod = 60)
-    df['sma_120'] = talib.SMA(df['close'], timeperiod=120)
-    df['ma_feature_01'] = list(map(lambda x, y: int((x-y) > 0), df['ema_50'], df['ema_200']))
-    df['ma_feature_02'] = list(map(lambda x, y: int((x-y) > 0), df['sma_60'], df['sma_120']))
+def add_ma_factor(df, m, n):
+    df['ema_'+str(m)] = talib.EMA(df['close'], timeperiod=m)
+    df['ema_'+str(n)] = talib.EMA(df['close'], timeperiod=n)
+    df['sma_'+str(m)] = talib.SMA(df['close'], timeperiod=m)
+    df['sma_'+str(n)] = talib.SMA(df['close'], timeperiod=n)
+    df['ma_feature_01'] = list(map(lambda x, y: int((x-y) > 0), df['ema_'+str(m)], df['ema_'+str(n)]))
+    df['ma_feature_02'] = list(map(lambda x, y: int((x-y) > 0), df['sma_'+str(m)], df['sma_'+str(n)]))
+
+    return df
+
+
+def add_ema_diff_factor(df, n, i):
+    df['ema_'+str(n)] = talib.EMA(df['close'], timeperiod=n)
+    df['diff_1'+str(n)] = df['ema_'+str(n)].diff(periods=i)
+    df['diff1_'+str(n)] = list(map(lambda x: int(x > 0), df['diff_1'+str(n)]))
+    df['diff_2'+str(n)] = df['ema_'+str(n)].diff(periods=i).diff(periods=i)
+    df['diff2_'+str(n)] = list(map(lambda x: int(x > 0), df['diff_2'+str(n)]))
 
     return df
 
@@ -177,20 +187,8 @@ def add_time_factor(df):
     return df
 
 
-def first_raising_limit_factor(df):
-    signal_ls = [0]
-    for i in range(df.index[0]+1, df.index[-1]+1):
-        if ((df['close'][i]-df['open'][i]) / df['open'][i] > 0.09) and ((df['close'][i-1]-df['open'][i-1])/df['open'][i-1] < 0.02):
-            signal_ls.append(1)
-        else:
-            signal_ls.append(0)
-    assert(len(df) == len(signal_ls))
-
-    return df[1:]
-
-
 # below factors are about simple pattern recognition
-def pattern_reconition_factor(df):
+def add_pattern_reconition_factor(df):
     df['two_crows'] = talib.CDL2CROWS(df['open'], df['high'], df['low'], df['close'])
     df['three_black_crows'] = talib.CDL3BLACKCROWS(df['open'], df['high'], df['low'], df['close'])
     df['three_inside'] = talib.CDL3INSIDE(df['open'], df['high'], df['low'], df['close'])
@@ -218,3 +216,16 @@ def pattern_reconition_factor(df):
     df['on_neck'] = talib.CDLONNECK(df['open'], df['high'], df['low'], df['close'])
 
     return df
+
+
+def add_first_raising_limit_factor(df):
+    signal_ls = [0]
+    for i in range(df.index[0]+1, df.index[-1]+1):
+        if ((df['close'][i]-df['open'][i]) / df['open'][i] > 0.09) and ((df['close'][i-1]-df['open'][i-1])/df['open'][i-1] < 0.02):
+            signal_ls.append(1)
+        else:
+            signal_ls.append(0)
+    assert(len(df) == len(signal_ls))
+    df['1st_raise_limit'] = signal_ls
+
+    return df[1:]

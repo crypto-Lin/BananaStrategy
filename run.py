@@ -7,10 +7,10 @@ import os
 import datetime as dt
 from sklearn.model_selection import GridSearchCV
 
-# train_file_path = './dataset/A_stock_daily/train.csv'
-# test_file_path = './dataset/A_stock_daily/test.csv'
-train_file_path = './dataset/A_stock_5d/train.csv'
-test_file_path = './dataset/A_stock_5d/test.csv'
+train_file_path = './dataset/A_stock_daily/train.csv'
+test_file_path = './dataset/A_stock_daily/test.csv'
+# train_file_path = './dataset/A_stock_5d/train.csv'
+# test_file_path = './dataset/A_stock_5d/test.csv'
 configs = json.load(open('config.json', 'r'))
 
 
@@ -20,14 +20,14 @@ def main():
     save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
-    df_train = df_train[(df_train['macd_cross_up_signal']==1) | (df_train['macd_cross_down_signal']==1)]
+    # df_train = df_train[(df_train['macd_cross_up_signal']==1) | (df_train['macd_cross_down_signal']==1)]
     x_train = df_train[configs['factor_feature_extract'][:-1]]
     y_train = df_train[configs['factor_feature_extract'][-1]]
     print('训练目标值分布：')
     print(y_train.value_counts())
 
     df_test = pd.read_csv(test_file_path)
-    df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
+    # df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
     x_test = df_test[configs['factor_feature_extract'][:-1]]
     y_test = df_test[configs['factor_feature_extract'][-1]]
 
@@ -49,8 +49,9 @@ def main():
     print('Feature importance property:{}'.format(clf.feature_importances_))
 
     # plotting xgboost
-    xgb.plot_importance(clf)
+    # xgb.plot_importance(clf)
     # xgb.plot_tree(clf)
+    plt_roc_curve(x_test, y_test, 'xgb', clf)
 
     # cv_params = configs['model_params']['cv_params']
     cv_params = {}

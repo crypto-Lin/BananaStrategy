@@ -10,18 +10,18 @@ import logging
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-#data_path = './data/'
-data_path = './dataset/A_stock_5d_original'
+data_path = './data/'
+# data_path = './dataset/A_stock_5d_original'
 configs = json.load(open('config.json', 'r'))
 
 
 def main():
 
-    logging.basicConfig(filename='data_transform_5d.log', filemode='a',
+    logging.basicConfig(filename='data_transform.log', filemode='a',
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logging.getLogger().setLevel(logging.INFO)
 
-    feature_select = configs['factor_feature_extract']
+    feature_select = configs['factor_feature_extract_all']
     predict_yn = configs['predict_timeperiod']
     counter = 0
     df_train = pd.DataFrame()
@@ -33,16 +33,18 @@ def main():
 
         try:
             newdf = add_macd_factor(tmpdf)
-            # newdf = add_kd_factor(newdf)
-            # newdf = add_rsi_factor(newdf)
-            # newdf = add_ma_factor(newdf)
-            # newdf = add_atr_factor(newdf)
+            newdf = add_kd_factor(newdf)
+            newdf = add_rsi_factor(newdf)
+            newdf = add_ma_factor(newdf, 10, 20)
+            newdf = add_ma_factor(newdf, 5, 10)
+            newdf = add_ema_diff_factor(newdf, 10, 1)
+            newdf = add_ema_diff_factor(newdf, 20, 1)
+#            newdf = add_atr_factor(newdf)
             newdf = add_bbands_factor(newdf)
-            newdf = add_macd_cross_factor(newdf)
 
-
-            newdf = add_ma_cross_factor(newdf, 5, 10)
-            newdf = add_ma_cross_factor(newdf, 10, 20)
+#            newdf = add_macd_cross_factor(newdf)
+#            newdf = add_ma_cross_factor(newdf, 5, 10)
+#            newdf = add_ma_cross_factor(newdf, 10, 20)
 #            newdf = add_ma_cross_factor(newdf, 50, 100)
 #            newdf = add_ma_cross_factor(newdf, 50, 200)
 
@@ -50,7 +52,9 @@ def main():
                 newdf = add_roc_factor(newdf, k)
             newdf = newdf.dropna(axis=0, how='any')
 
-            # newdf = add_time_factor(newdf)
+            newdf = add_time_factor(newdf)
+            newdf = add_first_raising_limit_factor(newdf)
+
             data_for_train = newdf[feature_select]
             test_size = int(len(newdf)*train_test_split)
             df_train = pd.concat([df_train, data_for_train[:-test_size]])
@@ -75,10 +79,10 @@ def main():
     # df_train = df_train[(df_train['macd_cross_up_signal'] == 1) | (df_train['macd_cross_down_signal'] == 1)]
     df_train = df_train.reset_index(drop=True)
 
-    # df_train.to_csv('./dataset/A_stock_daily/train.csv')
-    # df_test.to_csv('./dataset/A_stock_daily/test.csv')
-    df_train.to_csv('./dataset/A_stock_5d/train.csv')
-    df_test.to_csv('./dataset/A_stock_5d/test.csv')
+    df_train.to_csv('./dataset/A_stock_daily/train.csv')
+    df_test.to_csv('./dataset/A_stock_daily/test.csv')
+    # df_train.to_csv('./dataset/A_stock_5d/train.csv')
+    # df_test.to_csv('./dataset/A_stock_5d/test.csv')
 
     print('total number of trainset: {}'.format(counter))
 
