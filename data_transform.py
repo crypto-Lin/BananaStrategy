@@ -42,6 +42,7 @@ def main():
 #            newdf = add_atr_factor(newdf)
             newdf = add_bbands_factor(newdf)
 
+
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
 #            newdf = add_ma_cross_factor(newdf, 10, 20)
@@ -50,6 +51,7 @@ def main():
 
             for k in predict_yn:
                 newdf = add_roc_factor(newdf, k)
+           
             newdf = newdf.dropna(axis=0, how='any')
 
             newdf = add_time_factor(newdf)
@@ -60,6 +62,7 @@ def main():
             df_train = pd.concat([df_train, data_for_train[:-test_size]])
             df_test = pd.concat([df_test, data_for_train[-test_size:]])
             counter = counter + len(data_for_train)
+
         except Exception as e:
             logging.error(e)
             logging.info(csvfile.split('/')[-1])

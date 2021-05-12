@@ -36,8 +36,8 @@ def main():
     clf.fit(x_train, y_train,
         eval_set=[(x_train, y_train), (x_test, y_test)],
         eval_metric='logloss', # 'auc'
-        early_stopping_rounds=100,
-        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=100,metric_name='logloss',save_best=True),
+        early_stopping_rounds=1000,
+        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=1000,metric_name='logloss',save_best=True),
                                    xgb.callback.TrainingCheckPoint(directory=save_fname,name='xbg_binary_classifier')])
 
     evaluate_result = clf.evals_result()
@@ -47,7 +47,7 @@ def main():
     print('Get underlying booster of the model:{}'.format(clf.get_booster()))
     print('Gets the number of xgboost boosting rounds:{}'.format(clf.get_num_boosting_rounds()))
     print('Feature importance property:{}'.format(clf.feature_importances_))
-
+    print(configs['factor_feature_extract'])
     # plotting xgboost
     # xgb.plot_importance(clf)
     # xgb.plot_tree(clf)

@@ -19,9 +19,9 @@
     "week",
     "month",
     "1st_raise_limit",
-    "y1","y2","y3","y5","y10"
+    "y2"
   ],
-  "predict_timeperiod": [1, 2, 3, 5, 10],
+  "predict_timeperiod": [2],
   "model_params": {
     "train_test_split": 0.2,
     "cv_params": {
@@ -35,7 +35,7 @@
       "learning_rate": [0.1, 0.5]
     },
     "train_params": {
-      "learning_rate": 0.1, "max_depth": 4, "min_child_weight": 1, "seed": 0, "subsample": 1, "colsample_bytree": 1, "gamma": 0.2, "reg_alpha": 0.1, "reg_lambda": 0.5
+      "learning_rate": 0.3, "max_depth": 15, "min_child_weight": 1, "seed": 0, "subsample": 1, "colsample_bytree": 0.9, "gamma": 1, "reg_alpha": 0.1, "reg_lambda": 0.5
    , "objective": "binary:logistic", "eval_metric": "auc" },
     "save_dir": "saved_models"
   },
