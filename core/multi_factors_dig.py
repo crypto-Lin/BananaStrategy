@@ -8,7 +8,7 @@ import math
 
 
 # all num 1 express long market while all 0 represent short market.
-def macd_feature_01(dif,dea):
+def macd_feature_01(dif, dea):
     if dif > 0 and dea > 0:
         return 1
     else:
@@ -218,6 +218,31 @@ def add_pattern_reconition_factor(df):
     return df
 
 
+def down_pattern_recognition_factor(df):
+    df['hanging_man'] = talib.CDLHANGINGMAN(df['open'], df['high'], df['low'], df['close'])
+    df['evening_doji_star'] = talib.CDLEVENINGDOJISTAR(df['open'], df['high'], df['low'], df['close'], penetration=0)
+    df['three_black_crows'] = talib.CDL3BLACKCROWS(df['open'], df['high'], df['low'], df['close'])
+    df['dark_cloud_cover'] = talib.CDLDARKCLOUDCOVER(df['open'], df['high'], df['low'], df['close'])
+    df['shooting_star'] = talib.CDLSHOOTINGSTAR(df['open'], df['high'], df['low'], df['close'])
+    return df
+
+
+def up_pattern_recognition_factor(df):
+    df['hammer'] = talib.CDLHAMMER(df['open'], df['high'], df['low'], df['close'])
+    df['inverted_hammer'] = talib.CDLINVERTEDHAMMER(df['open'], df['high'], df['low'], df['close'])
+    df['engulfing'] = talib.CDLENGULFING(df['open'], df['high'], df['low'], df['close']) # not sure the direction
+    df['three_white_soldiers'] = talib.CDL3WHITESOLDIERS(df['open'], df['high'], df['low'], df['close']) # strong up trend
+    df['morning_doji_star'] = talib.CDLMORNINGDOJISTAR(df['open'], df['high'], df['low'], df['close'], penetration=0)
+
+    return df
+
+
+def continuation_pattern_recognition_factor(df):
+    df['three_method'] = talib.CDLRISEFALL3METHODS(df['open'], df['high'], df['low'], df['close'])
+    df['spin_top'] = talib.CDLSPINNINGTOP(df['open'], df['high'], df['low'], df['close'])
+    return df
+
+
 def add_first_raising_limit_factor(df):
     signal_ls = [0]
     for i in range(df.index[0]+1, df.index[-1]+1):
@@ -229,3 +254,6 @@ def add_first_raising_limit_factor(df):
     df['1st_raise_limit'] = signal_ls
 
     return df[1:]
+
+def add_trend_strength_factor(df):
+    pass
