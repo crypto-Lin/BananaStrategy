@@ -218,7 +218,7 @@ def add_pattern_reconition_factor(df):
     return df
 
 
-def down_pattern_recognition_factor(df):
+def add_down_pattern_recognition_factor(df):
     df['hanging_man'] = talib.CDLHANGINGMAN(df['open'], df['high'], df['low'], df['close'])
     df['evening_doji_star'] = talib.CDLEVENINGDOJISTAR(df['open'], df['high'], df['low'], df['close'], penetration=0)
     df['three_black_crows'] = talib.CDL3BLACKCROWS(df['open'], df['high'], df['low'], df['close'])
@@ -227,7 +227,7 @@ def down_pattern_recognition_factor(df):
     return df
 
 
-def up_pattern_recognition_factor(df):
+def add_up_pattern_recognition_factor(df):
     df['hammer'] = talib.CDLHAMMER(df['open'], df['high'], df['low'], df['close'])
     df['inverted_hammer'] = talib.CDLINVERTEDHAMMER(df['open'], df['high'], df['low'], df['close'])
     df['engulfing'] = talib.CDLENGULFING(df['open'], df['high'], df['low'], df['close']) # not sure the direction
@@ -237,7 +237,7 @@ def up_pattern_recognition_factor(df):
     return df
 
 
-def continuation_pattern_recognition_factor(df):
+def add_continuation_pattern_recognition_factor(df):
     df['three_method'] = talib.CDLRISEFALL3METHODS(df['open'], df['high'], df['low'], df['close'])
     df['spin_top'] = talib.CDLSPINNINGTOP(df['open'], df['high'], df['low'], df['close'])
     return df
@@ -255,5 +255,26 @@ def add_first_raising_limit_factor(df):
 
     return df[1:]
 
-def add_trend_strength_factor(df):
+
+def add_trend_strength_factor(df, n, r):
+    pass
+
+
+# The Chande Momentum Oscillator is a modified RSI. > 50 indicate overbought while < -50 indicate oversold
+# ADX is used to determine the strength of a trend
+def add_momentum_factor(df):
+    df['adx'] = talib.ADX(df['high'], df['low'], df['close'], timeperiod=14)
+    df['cmo'] = talib.CMO(df['close'], timeperiod=14)
+    df['cci'] = talib.CCI(df['high'], df['low'], df['close'],  timeperiod=14)
+    return df
+
+
+def add_cycle_indicator_factor(df):
+    df['ht_trend'] = talib.HT_TRENDMODE(df['close'])
+    df['ht_sine'], df['ht_leadsine'] = talib.HT_SINE(df['close'])
+    df['ht_sine_feature'] = list(map(lambda x, y: int((x - y) > 0), df['ht_leadsine'], df['ht_sine']))
+    return df
+
+
+def add_predict_y(df): # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
     pass

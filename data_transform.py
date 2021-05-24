@@ -42,6 +42,9 @@ def main():
 #            newdf = add_atr_factor(newdf)
             newdf = add_bbands_factor(newdf)
 
+            newdf = add_up_pattern_recognition_factor(newdf)
+            newdf = add_down_pattern_recognition_factor((newdf))
+            newdf = add_cycle_indicator_factor(newdf)
 
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
