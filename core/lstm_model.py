@@ -8,6 +8,9 @@ from keras.layers import Dense, Activation, Dropout, LSTM
 from keras.models import Sequential, load_model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
 
+# params introduction
+# input_dim  number of feature
+# input_timesteps number of time sequence
 
 class Model():
     """A class for an building and inferencing an lstm model"""

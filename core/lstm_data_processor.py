@@ -1,5 +1,6 @@
 import math
-
+import PyEMD
+from PyEMD import EEMD
 import numpy as np
 import pandas as pd
 
@@ -30,8 +31,10 @@ class DataLoader():
         data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
 
         x = data_windows[:, :-1]
+        x_imfs = np.array([self.extract_imfs(ele).T for ele in x[:]])
         y = data_windows[:, -1, [0]]
-        return x,y
+
+        return x_imfs, y
 
     def get_train_data(self, seq_len, normalise):
         '''
@@ -59,7 +62,8 @@ class DataLoader():
                     yield np.array(x_batch), np.array(y_batch)
                     i = 0
                 x, y = self._next_window(i, seq_len, normalise)
-                x_batch.append(x)
+                x_imfs = self.extract_imfs(np.array(x)) # here x is one-d data
+                x_batch.append(x_imfs.T)
                 y_batch.append(y)
                 i += 1
             yield np.array(x_batch), np.array(y_batch)
@@ -84,3 +88,14 @@ class DataLoader():
             normalised_window = np.array(normalised_window).T # reshape and transpose array back into original multidimensional format
             normalised_data.append(normalised_window)
         return np.array(normalised_data)
+
+    def extract_imfs(self, signal):
+        eemd = EEMD()
+        res = eemd.eemd(signal).get_imfs_and_residue()
+        imfs = list(res)[0]
+        # drop the noise/ high frequency imfs, may incur index error due to the signal is too simple
+        imfs_left = imfs[-5:]
+
+        return imfs_left # np.array type
+
+
