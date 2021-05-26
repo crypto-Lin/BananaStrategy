@@ -34,8 +34,8 @@ def main():
             continue
         try:
             newdf = add_macd_factor(tmpdf)
-            newdf = add_kd_factor(newdf)
-            newdf = add_rsi_factor(newdf)
+            # newdf = add_kd_factor(newdf)
+            # newdf = add_rsi_factor(newdf)
             newdf = add_ma_factor(newdf, 10, 20)
             newdf = add_ma_factor(newdf, 5, 10)
             newdf = add_ema_diff_factor(newdf, 10, 1)
@@ -53,6 +53,7 @@ def main():
 #            newdf = add_ma_cross_factor(newdf, 50, 100)
 #            newdf = add_ma_cross_factor(newdf, 50, 200)
 
+            newdf = add_predict_y(newdf, 10, 0.05)
             for k in predict_yn:
                 newdf = add_roc_factor(newdf, k)
            
