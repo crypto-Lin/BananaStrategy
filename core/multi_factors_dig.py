@@ -1,11 +1,14 @@
 # find the efficient factors as much as possible
 import pandas as pd
+import numpy as np
 import talib
 from talib.abstract import *
 import datetime
 from datetime import datetime
 import math
 
+import PyEMD
+from PyEMD import EEMD
 
 # all num 1 express long market while all 0 represent short market.
 def macd_feature_01(dif, dea):
@@ -256,8 +259,20 @@ def add_first_raising_limit_factor(df):
     return df[1:]
 
 
-def add_trend_strength_factor(df, n, r):
-    pass
+def add_trend_strength_factor(df, n, r=0):
+    data = np.array(df['close'])
+    fillna_ls = [np.nan]*(n-1)
+    for i in range(data.shape[0]-n +1):
+        window_data = data[i:i+n]
+        path = 0
+        for k in range(1, window_data.shape[0]):
+            path = path + abs(window_data[k]-window_data[k-1])
+        distance = window_data[-1]-window_data[0]
+        trend_strength = round(distance/path, 4)
+        fillna_ls.append(trend_strength)
+    df['trend_strength_feature'] = fillna_ls
+
+    return df
 
 
 # The Chande Momentum Oscillator is a modified RSI. > 50 indicate overbought while < -50 indicate oversold
@@ -276,5 +291,42 @@ def add_cycle_indicator_factor(df):
     return df
 
 
-def add_predict_y(df): # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
-    pass
+def extract_imfs(signal):
+    eemd = EEMD()
+    res = eemd.eemd(signal).get_imfs_and_residue()
+    imfs = list(res)[0]
+    # drop the noise/ high frequency imfs, may incur index error due to the signal is too simple
+    # imfs_left = imfs[-5:]
+
+    # return imfs_left # np.array type
+    return imfs
+
+
+def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
+    data = df.get(cols).values  # numpy.ndarray
+    data_windows = []
+    for i in range(len(df) - window_len +1):
+        data_windows.append(data[i:i+window_len])
+
+    data_imfs = [extract_imfs(ele).T[-1] for ele in data_windows]
+    min_len = np.min(np.array([len(ele) for ele in data_imfs]))
+    data_imfs_min = np.array([ele[-min_len:] for ele in data_imfs])
+
+    for k in range(min_len):
+        df[cols[0]+'_imf'+str(k+1)] = [np.nan]*(window_len-1) + list(data_imfs_min[:, k])
+
+    return df
+
+
+def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
+    data = np.array(df['close'])
+    y = []
+    for i in range(data.shape[0]-n+1):
+        window = data[i:i+n]
+        roc_max = (np.max(window[1:]) - window[0])/window[0]
+        if roc_max > roc_min:
+            y.append(1)
+        else:
+            y.append(0)
+    df['predict_ynm'] = y + [np.nan]*(n-1)
+    return df

@@ -30,7 +30,8 @@ def main():
 
     for csvfile in glob.glob(os.path.join(data_path, '*.csv')):
         tmpdf = pd.read_csv(csvfile)
-
+        if len(tmpdf) < 200:
+            continue
         try:
             newdf = add_macd_factor(tmpdf)
             newdf = add_kd_factor(newdf)
@@ -45,7 +46,7 @@ def main():
             newdf = add_up_pattern_recognition_factor(newdf)
             newdf = add_down_pattern_recognition_factor((newdf))
             newdf = add_cycle_indicator_factor(newdf)
-
+            newdf = add_eemd_factor(newdf, 100, ['close'])
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
 #            newdf = add_ma_cross_factor(newdf, 10, 20)
