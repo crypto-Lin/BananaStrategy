@@ -15,6 +15,8 @@ graphviz = "^0.16"
 jqdatasdk = "^1.8.9"
 EMD-signal = "^0.2.15"
 pandas = "0.24"
+keras = "^2.4.3"
+tensorflow = "2.2"
 
 [tool.poetry.dev-dependencies]
 

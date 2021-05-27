@@ -301,8 +301,8 @@ def extract_imfs(signal):
     return imfs
 
 @metric
-def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
-    data = np.array(df['close'])  # numpy.ndarray
+def add_eemd_factor(df, window_len, col): # suppose window_len < len(df)
+    data = np.array(df[col])  # numpy.ndarray
     data_windows = []
     for i in range(len(df) - window_len +1):
         data_windows.append(data[i:i+window_len])
@@ -312,7 +312,7 @@ def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
     data_imfs_min = np.array([ele[-min_len:] for ele in data_imfs])
 
     for k in range(min_len):
-        df[cols[0]+'_imf'+str(k+1)] = [np.nan]*(window_len-1) + list(data_imfs_min[:, k])
+        df[col+'_imf'+str(k+1)] = [np.nan]*(window_len-1) + list(data_imfs_min[:, k])
 
     return df
 
