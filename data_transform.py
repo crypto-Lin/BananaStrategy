@@ -10,7 +10,7 @@ import logging
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
-data_path = './data/'
+data_path = 'data'
 # data_path = './dataset/A_stock_5d_original'
 configs = json.load(open('config.json', 'r'))
 
@@ -43,11 +43,13 @@ def main():
 #            newdf = add_atr_factor(newdf)
 #             newdf = add_bbands_factor(newdf)
 
-            newdf = add_up_pattern_recognition_factor(newdf)
-            newdf = add_down_pattern_recognition_factor((newdf))
-            newdf = add_cycle_indicator_factor(newdf)
-            newdf = add_eemd_factor(newdf, 100, 'close')
+            # newdf = add_up_pattern_recognition_factor(tmpdf)
+            # newdf = add_down_pattern_recognition_factor((newdf))
+            # newdf = add_cycle_indicator_factor(newdf)
+            newdf = add_eemd_factor(tmpdf, 10, 'close')
+            print(newdf.head())
             newdf = add_trend_strength_factor(newdf, 100)
+            print(newdf.head())
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
 #            newdf = add_ma_cross_factor(newdf, 10, 20)
@@ -55,10 +57,12 @@ def main():
 #            newdf = add_ma_cross_factor(newdf, 50, 200)
 
             newdf = add_predict_y(newdf, 10, 0.05)
+            print(newdf.head())
             # for k in predict_yn:
             #     newdf = add_roc_factor(newdf, k)
            
             newdf = newdf.dropna(axis=0, how='any')
+            print(newdf.head())
 
             # newdf = add_time_factor(newdf)
             # newdf = add_first_raising_limit_factor(newdf)

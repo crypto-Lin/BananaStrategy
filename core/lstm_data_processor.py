@@ -63,11 +63,13 @@ class DataLoader():
                     i = 0
                 x, y = self._next_window(i, seq_len, normalise)
                 x_imfs = self.extract_imfs(x.T[0]) # here x is one-d data
-                try:
-                    assert x.shape == x_imfs.T.shape
-                except Exception as e:
-                    raise e
+
+                # try:
+                #     assert x.shape == x_imfs.T.shape
+                # except Exception as e:
+                #     raise e
                 # x_batch.append(x)
+
                 x_batch.append(x_imfs.T)
                 y_batch.append(y)
                 i += 1
