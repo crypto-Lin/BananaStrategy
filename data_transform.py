@@ -46,6 +46,7 @@ def main():
             # newdf = add_up_pattern_recognition_factor(tmpdf)
             # newdf = add_down_pattern_recognition_factor((newdf))
             # newdf = add_cycle_indicator_factor(newdf)
+
             newdf = add_eemd_factor(tmpdf, 10, 'close')
             print(newdf.head())
             newdf = add_trend_strength_factor(newdf, 100)

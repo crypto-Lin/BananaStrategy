@@ -3,9 +3,7 @@ import pandas as pd
 import numpy as np
 import talib
 from talib.abstract import *
-import datetime
-from datetime import datetime
-import math
+from core.utils import metric
 
 import PyEMD
 from PyEMD import EEMD
@@ -258,7 +256,7 @@ def add_first_raising_limit_factor(df):
 
     return df[1:]
 
-
+@metric
 def add_trend_strength_factor(df, n, r=0):
     data = np.array(df['close'])
     fillna_ls = [np.nan]*(n-1)
@@ -302,7 +300,7 @@ def extract_imfs(signal):
     # return imfs_left # np.array type
     return imfs
 
-
+@metric
 def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
     data = np.array(df['close'])  # numpy.ndarray
     data_windows = []
@@ -318,7 +316,7 @@ def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
 
     return df
 
-
+@metric
 def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
     data = np.array(df['close'])
     y = []

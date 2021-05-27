@@ -1,5 +1,3 @@
-import math
-import PyEMD
 from PyEMD import EEMD
 import numpy as np
 import pandas as pd
