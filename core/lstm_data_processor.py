@@ -62,7 +62,12 @@ class DataLoader():
                     yield np.array(x_batch), np.array(y_batch)
                     i = 0
                 x, y = self._next_window(i, seq_len, normalise)
-                x_imfs = self.extract_imfs(np.array(x)) # here x is one-d data
+                x_imfs = self.extract_imfs(x.T[0]) # here x is one-d data
+                try:
+                    assert x.shape == x_imfs.T.shape
+                except Exception as e:
+                    raise e
+                # x_batch.append(x)
                 x_batch.append(x_imfs.T)
                 y_batch.append(y)
                 i += 1
@@ -91,10 +96,11 @@ class DataLoader():
 
     def extract_imfs(self, signal):
         eemd = EEMD()
-        res = eemd.eemd(signal).get_imfs_and_residue()
+        eemd.eemd(signal)
+        res = eemd.get_imfs_and_residue()
         imfs = list(res)[0]
         # drop the noise/ high frequency imfs, may incur index error due to the signal is too simple
-        imfs_left = imfs[-5:]
+        imfs_left = imfs[-1:]
 
         return imfs_left # np.array type
 

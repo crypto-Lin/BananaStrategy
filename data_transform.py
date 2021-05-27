@@ -33,20 +33,21 @@ def main():
         if len(tmpdf) < 200:
             continue
         try:
-            newdf = add_macd_factor(tmpdf)
+            # newdf = add_macd_factor(tmpdf)
             # newdf = add_kd_factor(newdf)
             # newdf = add_rsi_factor(newdf)
-            newdf = add_ma_factor(newdf, 10, 20)
-            newdf = add_ma_factor(newdf, 5, 10)
-            newdf = add_ema_diff_factor(newdf, 10, 1)
-            newdf = add_ema_diff_factor(newdf, 20, 1)
+            # newdf = add_ma_factor(newdf, 10, 20)
+            # newdf = add_ma_factor(newdf, 5, 10)
+            # newdf = add_ema_diff_factor(newdf, 10, 1)
+            # newdf = add_ema_diff_factor(newdf, 20, 1)
 #            newdf = add_atr_factor(newdf)
-            newdf = add_bbands_factor(newdf)
+#             newdf = add_bbands_factor(newdf)
 
             newdf = add_up_pattern_recognition_factor(newdf)
             newdf = add_down_pattern_recognition_factor((newdf))
             newdf = add_cycle_indicator_factor(newdf)
-            newdf = add_eemd_factor(newdf, 100, ['close'])
+            newdf = add_eemd_factor(newdf, 100, 'close')
+            newdf = add_trend_strength_factor(newdf, 100)
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
 #            newdf = add_ma_cross_factor(newdf, 10, 20)
@@ -54,13 +55,13 @@ def main():
 #            newdf = add_ma_cross_factor(newdf, 50, 200)
 
             newdf = add_predict_y(newdf, 10, 0.05)
-            for k in predict_yn:
-                newdf = add_roc_factor(newdf, k)
+            # for k in predict_yn:
+            #     newdf = add_roc_factor(newdf, k)
            
             newdf = newdf.dropna(axis=0, how='any')
 
-            newdf = add_time_factor(newdf)
-            newdf = add_first_raising_limit_factor(newdf)
+            # newdf = add_time_factor(newdf)
+            # newdf = add_first_raising_limit_factor(newdf)
 
             data_for_train = newdf[feature_select]
             test_size = int(len(newdf)*train_test_split)
@@ -75,7 +76,7 @@ def main():
             logging.info(csvfile.split('/')[-1])
 
         print(counter)
-        #break
+        break
 
     if not os.path.exists('./dataset/A_stock_5d'):
         os.makedirs('./dataset/A_stock_5d')
@@ -86,9 +87,10 @@ def main():
 
     # df_train = df_train[(df_train['macd_cross_up_signal'] == 1) | (df_train['macd_cross_down_signal'] == 1)]
     df_train = df_train.reset_index(drop=True)
-
-    df_train.to_csv('./dataset/A_stock_daily/train.csv')
-    df_test.to_csv('./dataset/A_stock_daily/test.csv')
+    df_train.to_csv('./dataset/test_train.csv')
+    df_test.to_csv('./dataset/test_test.csv')
+    # df_train.to_csv('./dataset/A_stock_daily/train.csv')
+    # df_test.to_csv('./dataset/A_stock_daily/test.csv')
     # df_train.to_csv('./dataset/A_stock_5d/train.csv')
     # df_test.to_csv('./dataset/A_stock_5d/test.csv')
 

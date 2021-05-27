@@ -293,7 +293,8 @@ def add_cycle_indicator_factor(df):
 
 def extract_imfs(signal):
     eemd = EEMD()
-    res = eemd.eemd(signal).get_imfs_and_residue()
+    eemd.eemd(signal)
+    res = eemd.get_imfs_and_residue()
     imfs = list(res)[0]
     # drop the noise/ high frequency imfs, may incur index error due to the signal is too simple
     # imfs_left = imfs[-5:]
@@ -303,7 +304,7 @@ def extract_imfs(signal):
 
 
 def add_eemd_factor(df, window_len, cols): # suppose window_len < len(df)
-    data = df.get(cols).values  # numpy.ndarray
+    data = np.array(df['close'])  # numpy.ndarray
     data_windows = []
     for i in range(len(df) - window_len +1):
         data_windows.append(data[i:i+window_len])
