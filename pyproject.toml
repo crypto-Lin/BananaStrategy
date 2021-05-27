@@ -8,11 +8,13 @@ authors = ["Your Name <you@example.com>"]
 python = "^3.7"
 scikit-learn = "^0.24.0"
 scikit-plot = "^0.3.7"
-pandas = "^1.1"
 xgboost = "^1.4.1"
 sklearn = "^0.0"
 TA-Lib = "^0.4.19"
 graphviz = "^0.16"
+jqdatasdk = "^1.8.9"
+EMD-signal = "^0.2.15"
+pandas = "0.24"
 
 [tool.poetry.dev-dependencies]
 

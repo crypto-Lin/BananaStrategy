@@ -8,24 +8,24 @@ import pandas as pd
 
 import logging
 
-data_path = './data/'
+data_path = './dataset/A_stock_5d_original/'
 
 def main():
 
-    logging.basicConfig(filename='update_A_stock_data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.basicConfig(filename='update_A_stock_5d_data.log', filemode='a', format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logging.getLogger().setLevel(logging.INFO)
 
-    auth('15182289113', 'Since1991')
-    # auth('13661732733','bWc-44f-Vuq-FJK')
+    # auth('15182289113', 'Since1991')
+    auth('13661732733','bWc-44f-Vuq-FJK')
     # auth('15221252658', 'Since1991')
     assert (get_query_count()['total'] > 100000)
 
     today = str(datetime.datetime.now()).split(' ')[0]
     stock_table = get_all_securities(types=['stock'])
-    stock_table.to_csv('./data/stock_table_original.csv')
+    stock_table.to_csv('./dataset/stock_table_original.csv')
 
 
-    for i in range( len(stock_table)):
+    for i in range(2028, len(stock_table)):
 
         logging.info(i)
         logging.info('{} is in process.'.format(stock_table['display_name'][i]))
@@ -37,7 +37,7 @@ def main():
             df = get_price(security=stock_table.index[i],
                            start_date=start_date,
                            end_date=today,
-                           frequency='daily',
+                           frequency='5d',
                            fields=None,
                            skip_paused=True,
                            fq='pre', count=None)
@@ -56,7 +56,7 @@ def main():
         df = get_price(security=stock_table.index[i],
                        start_date=last_date,
                        end_date=today,
-                       frequency='daily',
+                       frequency='5d',
                        fields=None,
                        skip_paused=True,
                        fq='pre', count=None)

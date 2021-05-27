@@ -63,9 +63,9 @@
   ],
 
  "data": {
-		"filename": "sp500.csv",
+		"filename": "./data/000001.csv",
 		"columns": [
-			"Close"
+			"close"
 		],
 		"sequence_length": 100,
 		"train_test_split": 0.85,
