@@ -47,9 +47,9 @@ def main():
             newdf = add_down_pattern_recognition_factor((newdf))
             newdf = add_cycle_indicator_factor(newdf)
 
-            newdf = add_eemd_factor(newdf, 10, 'close')
+            # newdf = add_eemd_factor(newdf, 10, 'close')
             # print(newdf.head())
-            newdf = add_trend_strength_factor(newdf, 100)
+            # newdf = add_trend_strength_factor(newdf, 100)
             # print(newdf.head())
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
@@ -57,7 +57,7 @@ def main():
 #            newdf = add_ma_cross_factor(newdf, 50, 100)
 #            newdf = add_ma_cross_factor(newdf, 50, 200)
 
-            newdf = add_predict_y(newdf, 10, 0.05)
+            newdf = add_predict_y(newdf, 5, 0.03)
             # print(newdf.head())
             for k in predict_yn:
                 newdf = add_roc_factor(newdf, k)
