@@ -30,10 +30,10 @@
     "morning_doji_star",
     "ht_trend",
     "ht_sine_feature",
-    "y2",
+    "y2", "y3", "y5",
     "predict_ynm"
   ],
-  "predict_timeperiod": [2],
+  "predict_timeperiod": [2, 3, 5],
   "model_params": {
     "train_test_split": 0.2,
     "cv_params": {
@@ -74,8 +74,7 @@
     "morning_doji_star",
     "ht_trend",
     "ht_sine_feature",
-    "y2",
-    "predict_ynm"
+    "y2"
   ],
 
  "data": {
