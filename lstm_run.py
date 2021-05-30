@@ -33,7 +33,7 @@ def main():
     if not os.path.exists(configs['model']['save_dir']): os.makedirs(configs['model']['save_dir'])
 
     data = DataLoader(
-        os.path.join('data', configs['data']['filename']),
+        os.path.join('/Users/li/A-stock-life-jacket/data', configs['data']['filename']),
         configs['data']['train_test_split'],
         configs['data']['columns']
     )

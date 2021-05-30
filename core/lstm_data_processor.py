@@ -29,10 +29,11 @@ class DataLoader():
         data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
 
         x = data_windows[:, :-1]
-        x_imfs = np.array([self.extract_imfs(ele).T for ele in x[:]])
+        # x_imfs = np.array([self.extract_imfs(ele).T for ele in x[:]])
         y = data_windows[:, -1, [0]]
 
-        return x_imfs, y
+        # return x_imfs, y
+        return x, y
 
     def get_train_data(self, seq_len, normalise):
         '''
