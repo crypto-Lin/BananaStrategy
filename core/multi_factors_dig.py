@@ -71,8 +71,8 @@ def add_ma_factor(df, m, n):
     df['ema_'+str(n)] = talib.EMA(df['close'], timeperiod=n)
     df['sma_'+str(m)] = talib.SMA(df['close'], timeperiod=m)
     df['sma_'+str(n)] = talib.SMA(df['close'], timeperiod=n)
-    df['ma_feature_01'] = list(map(lambda x, y: int((x-y) > 0), df['ema_'+str(m)], df['ema_'+str(n)]))
-    df['ma_feature_02'] = list(map(lambda x, y: int((x-y) > 0), df['sma_'+str(m)], df['sma_'+str(n)]))
+    df['ema_'+str(m)+'_'+str(n)] = list(map(lambda x, y: int((x-y) > 0), df['ema_'+str(m)], df['ema_'+str(n)]))
+    df['sma_'+str(m)+'_'+str(n)] = list(map(lambda x, y: int((x-y) > 0), df['sma_'+str(m)], df['sma_'+str(n)]))
 
     return df
 
@@ -316,7 +316,7 @@ def add_eemd_factor(df, window_len, col): # suppose window_len < len(df)
 
     return df
 
-@metric
+# @metric
 def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
     data = np.array(df['close'])
     y = []
@@ -324,8 +324,8 @@ def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日�
         window = data[i:i+n]
         roc_max = (np.max(window[1:]) - window[0])/window[0]
         if roc_max > roc_min:
-            y.append(1)
+            y.append(int(1))
         else:
-            y.append(0)
+            y.append(int(0))
     df['predict_ynm'] = y + [np.nan]*(n-1)
     return df

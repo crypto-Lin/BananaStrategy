@@ -7,12 +7,8 @@ import os
 import datetime as dt
 from sklearn.model_selection import GridSearchCV
 
-train_file_path = './dataset/A_stock_daily/train.csv'
-test_file_path = './dataset/A_stock_daily/test.csv'
-# train_file_path = './dataset/A_stock_5d/train.csv'
-# test_file_path = './dataset/A_stock_5d/test.csv'
+train_file_path = './dataset/emd_data/002036.csv'
 configs = json.load(open('config.json', 'r'))
-
 
 def main():
     if not os.path.exists(configs['model_params']['save_dir']): os.makedirs(configs['model_params']['save_dir'])
@@ -20,16 +16,14 @@ def main():
     save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
-    #df_train = df_train[(df_train['morning_doji_star']==1) | (df_train['evening_doji_star']==1)]
-    x_train = df_train[configs['factor_feature_extract'][:-1]]
-    y_train = df_train[configs['factor_feature_extract'][-1]]
+    
+    x_train = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][:-1000]
+    x_test = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][-1000:]
+    y_train = df_train['y2'][:-1000]
+    y_test = df_train['y2'][-1000:]
     print('训练目标值分布：')
     print(y_train.value_counts())
 
-    df_test = pd.read_csv(test_file_path)
-    # df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
-    x_test = df_test[configs['factor_feature_extract'][:-1]]
-    y_test = df_test[configs['factor_feature_extract'][-1]]
 
     train_params = configs['model_params']['train_params']
     clf = xgb.XGBClassifier(**train_params)
@@ -48,7 +42,7 @@ def main():
     print('Gets the number of xgboost boosting rounds:{}'.format(clf.get_num_boosting_rounds()))
     # print('Feature importance property:{}'.format(clf.feature_importances_))
     feature_importance = np.array([clf.feature_importances_])
-    print(pd.DataFrame(feature_importance , columns =configs['factor_feature_extract'][:-1]).T)
+    print(pd.DataFrame(feature_importance , columns =['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']).T)
     # plotting xgboost
     # xgb.plot_importance(clf)
     # xgb.plot_tree(clf)

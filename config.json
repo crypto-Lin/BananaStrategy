@@ -47,7 +47,7 @@
       "learning_rate": [0.1, 0.5]
     },
     "train_params": {
-      "learning_rate": 0.3, "max_depth": 15, "min_child_weight": 1, "seed": 0, "subsample": 1, "colsample_bytree": 0.9, "gamma": 1, "reg_alpha": 0.1, "reg_lambda": 0.5
+      "learning_rate": 0.5, "max_depth": 5, "min_child_weight": 1, "seed": 0, "subsample": 0.9, "colsample_bytree": 0.9, "gamma": 2, "reg_alpha": 0.1, "reg_lambda": 0.5
    , "objective": "binary:logistic", "eval_metric": "auc" },
     "save_dir": "saved_models"
   },
@@ -55,26 +55,20 @@
     "macd_feature_01",
     "macd_feature_02",
     "macd_feature_03",
+    "kd_feature_01",
+    "kd_feature_02",
+    "kd_feature_03",
+    "ma_feature_02",
     "diff1_10",
     "diff2_10",
     "diff1_20",
     "diff2_20",
+    "rsi_feature_03",
     "bbands_feature_02",
     "week",
     "month",
-    "1st_raise_limit",
-    "hanging_man",
-    "evening_doji_star",
-    "three_black_crows",
-    "dark_cloud_cover",
-    "shooting_star",
-    "hammer",
-    "inverted_hammer",
-    "three_white_soldiers",
-    "morning_doji_star",
-    "ht_trend",
     "ht_sine_feature",
-    "y2"
+    "predict_ynm"
   ],
 
  "data": {

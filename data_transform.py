@@ -11,7 +11,6 @@ import logging
 pd.options.mode.chained_assignment = None  # default='warn'
 
 data_path = 'data'
-# data_path = './dataset/A_stock_5d_original'
 configs = json.load(open('config.json', 'r'))
 
 
@@ -30,7 +29,7 @@ def main():
 
     for csvfile in glob.glob(os.path.join(data_path, '*.csv')):
         tmpdf = pd.read_csv(csvfile)
-        if len(tmpdf) < 200:
+        if len(tmpdf) < 500:
             continue
         try:
             newdf = add_macd_factor(tmpdf)
@@ -81,7 +80,7 @@ def main():
             logging.info(csvfile.split('/')[-1])
 
         print(counter)
-        break
+    #    break
 
     if not os.path.exists('./dataset/A_stock_5d'):
         os.makedirs('./dataset/A_stock_5d')
@@ -92,10 +91,8 @@ def main():
 
     # df_train = df_train[(df_train['macd_cross_up_signal'] == 1) | (df_train['macd_cross_down_signal'] == 1)]
     df_train = df_train.reset_index(drop=True)
-    df_train.to_csv('./dataset/test_train.csv')
-    df_test.to_csv('./dataset/test_test.csv')
-    # df_train.to_csv('./dataset/A_stock_daily/train.csv')
-    # df_test.to_csv('./dataset/A_stock_daily/test.csv')
+    df_train.to_csv('./dataset/A_stock_daily/train.csv')
+    df_test.to_csv('./dataset/A_stock_daily/test.csv')
     # df_train.to_csv('./dataset/A_stock_5d/train.csv')
     # df_test.to_csv('./dataset/A_stock_5d/test.csv')
 
