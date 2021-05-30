@@ -28,7 +28,7 @@ class DataLoader():
         data_windows = np.array(data_windows).astype(float)
         data_windows = self.normalise_windows(data_windows, single_window=False) if normalise else data_windows
 
-        x = data_windows[:, :-1]
+        x = data_windows[:, :, 1:]
         # x_imfs = np.array([self.extract_imfs(ele).T for ele in x[:]])
         y = data_windows[:, -1, [0]]
 
@@ -78,7 +78,7 @@ class DataLoader():
         '''Generates the next data window from the given index location i'''
         window = self.data_train[i:i+seq_len]
         window = self.normalise_windows(window, single_window=True)[0] if normalise else window
-        x = window[:-1]
+        x = window[:, 1:]
         y = window[-1, [0]]
         return x, y
 

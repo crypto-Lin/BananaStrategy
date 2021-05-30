@@ -72,28 +72,34 @@
   ],
 
  "data": {
-		"filename": "000001.csv",
+		"filename": "002036.csv",
 		"columns": [
-			"close"
+			"y2",
+			"close_imf1",
+			"close_imf2",
+			"close_imf3",
+			"close_imf4",
+			"close_imf5",
+		        "trend_strength_feature"
 		],
-		"sequence_length": 100,
-		"train_test_split": 0.85,
+		"sequence_length": 20,
+		"train_test_split": 0.8,
 		"normalise": false
 	},
  "training": {
-		"epochs": 2,
+		"epochs": 30,
 		"batch_size": 50
 	},
  "model": {
-		"loss": "mse",
+		"loss": "binary_crossentropy",
 		"optimizer": "adam",
 		"save_dir": "saved_models",
 		"layers": [
 			{
 				"type": "lstm",
 				"neurons": 100,
-				"input_timesteps": 99,
-				"input_dim": 1,
+				"input_timesteps": 20,
+				"input_dim": 6,
 				"return_seq": true
 			},
 			{
@@ -117,7 +123,7 @@
 			{
 				"type": "dense",
 				"neurons": 1,
-				"activation": "linear"
+				"activation": "sigmoid"
 			}
 		]
 	}

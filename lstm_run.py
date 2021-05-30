@@ -5,7 +5,7 @@ import math
 import matplotlib.pyplot as plt
 from core.lstm_data_processor import DataLoader
 from core.lstm_model import Model
-
+from core.evaluation import *
 
 def plot_results(predicted_data, true_data):
     fig = plt.figure(facecolor='white')
@@ -33,7 +33,7 @@ def main():
     if not os.path.exists(configs['model']['save_dir']): os.makedirs(configs['model']['save_dir'])
 
     data = DataLoader(
-        os.path.join('/Users/li/A-stock-life-jacket/data', configs['data']['filename']),
+        os.path.join('dataset/emd_data', configs['data']['filename']),
         configs['data']['train_test_split'],
         configs['data']['columns']
     )
@@ -78,9 +78,9 @@ def main():
     #                                                configs['data']['sequence_length'])
     # predictions = model.predict_sequence_full(x_test, configs['data']['sequence_length'])
     predictions = model.predict_point_by_point(x_test)
-
+    print(confusion_matrix_model(model, x_test, y_test))
     # plot_results_multiple(predictions, y_test, configs['data']['sequence_length'])
-    plot_results(predictions, y_test)
+    # plot_results(predictions, y_test)
 
 
 if __name__ == '__main__':

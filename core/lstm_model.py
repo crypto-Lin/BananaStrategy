@@ -122,4 +122,7 @@ class Model():
             curr_frame = np.insert(curr_frame, [window_size - 2], predicted[-1], axis=0)
         return predicted
 
-
+    def predict(self, data):
+        predicted = self.model.predict(data) 
+        predicted = np.reshape(predicted, (predicted.size,))
+        return list(map(lambda x: int(x>0.5), predicted))
