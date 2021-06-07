@@ -256,6 +256,7 @@ def add_first_raising_limit_factor(df):
 
     return df[1:]
 
+
 @metric
 def add_trend_strength_factor(df, n, r=0):
     data = np.array(df['close'])
@@ -300,6 +301,7 @@ def extract_imfs(signal):
     # return imfs_left # np.array type
     return imfs
 
+
 @metric
 def add_eemd_factor(df, window_len, col): # suppose window_len < len(df)
     data = np.array(df[col])  # numpy.ndarray
@@ -316,6 +318,7 @@ def add_eemd_factor(df, window_len, col): # suppose window_len < len(df)
 
     return df
 
+
 # @metric
 def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日内第m日相对第1日涨幅超过5%就视为正例
     data = np.array(df['close'])
@@ -328,4 +331,36 @@ def add_predict_y(df, n, roc_min):  # 放宽对y的要求，比如，未来n日�
         else:
             y.append(int(0))
     df['predict_ynm'] = y + [np.nan]*(n-1)
+    return df
+
+
+def try_bottom_strategy(df):
+    df['upperband'], df['middleband'], df['lowerband'] = talib.BBANDS(df['close'], timeperiod=30, nbdevup=3,
+                                                                      nbdevdn=3, matype=0)
+    df['std_var'] = (df['upperband'] - df['middleband']) / 3
+    df['close_off'] = (df['close'] - df['middleband']) / df['std_var']
+    df['rsi_14'] = talib.RSI(df['close'], timeperiod=14)
+    df['vol_diff'] = talib.ROC(df['volume'], timeperiod=1)
+    df['true_range'] = (df['high'] - df['low']) / df['low'] * 100
+    df['true_bar'] = (df['close'] - df['open']) / df['open'] * 100
+    df = df.round(2)
+    df = df.dropna(how='any')
+    df = df.reset_index(drop=True)
+
+    score_ls = []
+    for i in range(len(df)):
+        score = 0
+        if df['close_off'][i] < -1.6:
+            score = score + 1
+        if df['rsi_14'][i] < 50:
+            score = score + 1
+        if df['vol_diff'][i] > 80:
+            score = score + 1
+        if df['true_range'][i] < 5:
+            score = score + 1
+        if abs(df['true_bar'][i]) < 3:
+            score = score + 1
+        score_ls.append(score)
+    df['score'] = score_ls
+
     return df
