@@ -9,7 +9,6 @@ import os
 import pandas as pd
 import json
 import logging
-import talib
 
 data_path = 'data'
 
@@ -22,7 +21,7 @@ def mongoClient(uri, db_name, collection_name):
 
 
 def main():
-    logging.basicConfig(filename='data_transform.log', filemode='a',
+    logging.basicConfig(filename='data_import_mongo.log', filemode='a',
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logging.getLogger().setLevel(logging.INFO)
 
@@ -33,8 +32,12 @@ def main():
 
         df = pd.read_csv(csvfile)
         df = df.rename(columns={'Unnamed: 0': 'datetime'})
+        name = csvfile.split('/')[-1].split('.')[0]
+        df['name'] = [name] * len(df)
+        print(name)
         try:
             df = try_bottom_strategy(df)
+#            print(df.head())
         except Exception as e:
             logging.error(e)
             logging.info(csvfile)
@@ -45,7 +48,7 @@ def main():
             logging.info(e)
             logging.info(csvfile)
 
-
+        #break
 if __name__ == '__main__':
     main()
 

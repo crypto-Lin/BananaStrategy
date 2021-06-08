@@ -2,7 +2,6 @@
 import pandas as pd
 import numpy as np
 import talib
-from talib.abstract import *
 from core.utils import metric
 
 import PyEMD
