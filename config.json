@@ -80,7 +80,7 @@
 			"close_imf3",
 			"close_imf4",
 			"close_imf5",
-		        "trend_strength_feature"
+            "trend_strength_feature"
 		],
 		"sequence_length": 20,
 		"train_test_split": 0.8,

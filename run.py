@@ -20,7 +20,7 @@ def main():
     save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
-    #df_train = df_train[(df_train['morning_doji_star']==1) | (df_train['evening_doji_star']==1)]
+    # df_train = df_train[(df_train['morning_doji_star']==1) | (df_train['evening_doji_star']==1)]
     x_train = df_train[configs['factor_feature_extract'][:-1]]
     y_train = df_train[configs['factor_feature_extract'][-1]]
     print('训练目标值分布：')
