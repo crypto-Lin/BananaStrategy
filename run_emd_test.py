@@ -17,10 +17,16 @@ def main():
 
     df_train = pd.read_csv(train_file_path)
     
-    x_train = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][:-1000]
-    x_test = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][-1000:]
-    y_train = df_train['y2'][:-1000]
-    y_test = df_train['y2'][-1000:]
+    for i in range(1,6):
+        df_train['imf'+str(i)+'_diff'] = df_train['close_imf'+str(i)].diff(periods=1)
+
+    x_train = df_train[['imf1_diff','imf2_diff','imf3_diff','imf4_diff','imf5_diff','trend_strength_feature']][:-2000]
+    x_test = df_train[['imf1_diff','imf2_diff','imf3_diff','imf4_diff','imf5_diff','trend_strength_feature']][-2000:]
+    
+#    x_train = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][:-1000]
+#    x_test = df_train[['close_imf1','close_imf2','close_imf3','close_imf4','close_imf5','trend_strength_feature']][-1000:]
+    y_train = df_train['y2'][:-2000]
+    y_test = df_train['y2'][-2000:]
     print('训练目标值分布：')
     print(y_train.value_counts())
 
@@ -30,8 +36,8 @@ def main():
     clf.fit(x_train, y_train,
         eval_set=[(x_train, y_train), (x_test, y_test)],
         eval_metric='logloss', # 'auc'
-        early_stopping_rounds=5,
-        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=5,metric_name='logloss',save_best=True),
+        early_stopping_rounds=50,
+        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=50,metric_name='logloss',save_best=True),
                                    xgb.callback.TrainingCheckPoint(directory=save_fname,name='xbg_binary_classifier')])
 
     evaluate_result = clf.evals_result()
