@@ -25,6 +25,34 @@ def calculate_win_probability(history_order, position_info):
     pass
 
 
+def evaluate_fund_curve(position_fund_info, monetary_fund):
+    try:
+        assert(len(position_fund_info.items()) == len(monetary_fund.items()))
+    except Exception as e:
+        print('持仓资金信息和空仓资金信息时间不对齐')
+        raise e
+    df = pd.DataFrame([(k, v, monetary_fund[k]) for k, v in position_fund_info.items()],
+                      columns=['datetime', 'position_fund', 'short_position_fund'])
+    df['fund'] = df['position_fund'] + df['short_position_fund']
+    df = df.round(2)
+    dividend = df['fund'].values
+    max_drawback = -100 * np.min([((dividend[i+1:]-dividend[i])/dividend[i]).min() for i in range(len(df)-1)])
+
+    # sharpe ratio annualized
+    rf = 0  # free risk rate
+    df['datetime'] = pd.to_datetime(df['datetime'])
+    df['dr'] = talib.ROCP(df['fund'], timeperiod=1)
+    df = df.dropna(how='any')
+    df_sharpe = df[['datetime', 'dr']].set_index('datetime').groupby(pd.Grouper(freq='Y')).apply(
+        lambda x: (x.mean()-rf) / x.std() * np.sqrt(len(x)))
+    df_sharpe = df_sharpe.rename(columns={'dr': 'annualized_sharpe_ratio'})
+
+    # annualized return
+    ...
+
+    return annualized_r, max_drawback, df_sharpe
+
+
 def update_trade_info(position_info, position_fund_info, back_test_db, tomorrow):
     stock_hold = [code for code, info in position_info.items()]
     price_info = back_test_db.find({'datetime': tomorrow, 'name': {'$in': stock_hold}})
@@ -68,7 +96,7 @@ def main():
                 open_price = 0 # mongo return value
 
                 # status update
-                monetary_fund[tomorrow] = monetary_fund[today] + open_price * position_info[code]['num']
+                left_fund = left_fund + open_price * position_info[code]['num']
                 position_info.pop(code, None)
                 # del position_info[code]
                 order_info = {
@@ -86,7 +114,7 @@ def main():
         stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
         if stock_find.count() == 0:  # no market signal today
             update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
-            monetary_fund[tomorrow] = monetary_fund[today]
+            monetary_fund[tomorrow] = left_fund
             continue
 
         for item in stock_find:
@@ -130,6 +158,9 @@ def main():
 
         update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
         monetary_fund[tomorrow] = left_fund
+
+    # evaluate the strategy
+
 
 
 if __name__ == '__main__':
