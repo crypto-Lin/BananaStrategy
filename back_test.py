@@ -47,8 +47,10 @@ def evaluate_fund_curve(position_fund_info, monetary_fund):
         lambda x: (x.mean()-rf) / x.std() * np.sqrt(len(x)))
     df_sharpe = df_sharpe.rename(columns={'dr': 'annualized_sharpe_ratio'})
 
-    # annualized return
-    ...
+    # annualized return 累计收益率
+    total_r = round(df.iloc[-1]['fund']/df.iloc[0]['fund'], 2)
+    yrs = round(int(str(df.iloc['datetime'][-1]-df.iloc['datetime'][0]).split(' ')[0])/365, 2)
+    annualized_r = pow(total_r, round(1/yrs, 2)) - 1
 
     return annualized_r, max_drawback, df_sharpe
 
