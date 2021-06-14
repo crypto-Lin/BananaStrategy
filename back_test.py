@@ -60,7 +60,7 @@ def update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
     price_info = back_test_db.find({'datetime': tomorrow, 'name': {'$in': stock_hold}})
     value = 0
     for item in price_info:
-        value = value + item['close'] * position_fund_info[item['name']]['num']
+        value = value + item['close'] * position_info[item['name']]['num']
     position_fund_info[tomorrow] = value
 
     return 0
@@ -80,7 +80,7 @@ def main():
     # get the time line
     df = pd.read_csv('./data/000001.csv')
     df = df.rename(columns={'Unnamed: 0': 'datetime'})
-    timeline = df['datetime'].tolist()[-2600:]  # roughly last 10 yrs
+    timeline = df['datetime'].tolist()[-700:]  # roughly last 10 yrs
     position_fund_info[timeline[0]] = 0
     monetary_fund[timeline[0]] = init_fund
     print('backtest start time:', timeline[0])
@@ -93,9 +93,14 @@ def main():
 
         # 检查仓位信息，确定需要止损的股票，并且操作止损
         for code, info in position_info.items():
-            close_price = 0 # mongo return value
+            try:
+                
+                close_price = [item for item in back_test_db.find({'datetime':today, 'name':code})][0]['close'] # mongo return value
+            except:
+                print(today,code)
+                sys.abort('500')
             if (close_price - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
-                open_price = 0 # mongo return value
+                open_price = [item for item in back_test_db.find({'datetime':tomorrow, 'name':code})][0]['open'] # mongo return value
 
                 # status update
                 left_fund = left_fund + open_price * position_info[code]['num']
@@ -114,7 +119,7 @@ def main():
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
-        if stock_find.count() == 0:  # no market signal today
+        if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
             update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
             monetary_fund[tomorrow] = left_fund
             continue
@@ -157,7 +162,7 @@ def main():
                 position_info[stock_name]['num'] = total_num
             else:
                 position_info[stock_name] = {'price': buy_price, 'num': buy_num*100}
-
+        print(position_info)
         update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
         monetary_fund[tomorrow] = left_fund
 
