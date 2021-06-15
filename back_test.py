@@ -21,8 +21,13 @@ def kelly_formula(p, b):  # p获胜率 b盈亏比（不含本金的赔率）
     return (p*b + p - 1)/b
 
 
-def calculate_win_probability(history_order, position_info):
-    pass
+def calculate_win_probability(history_order):
+    sdf = history_order[history_order['status'] == 'success']
+    fail_count = 0
+    for k,g in sdf.groupby('code'):
+        
+
+
 
 
 def evaluate_fund_curve(position_fund_info, monetary_fund):
@@ -55,18 +60,32 @@ def evaluate_fund_curve(position_fund_info, monetary_fund):
     return annualized_r, max_drawback, df_sharpe
 
 
-def update_trade_info(position_info, position_fund_info, back_test_db, tomorrow):
+def update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow):
     stock_hold = [code for code, info in position_info.items()]
-    price_info = back_test_db.find({'datetime': tomorrow, 'name': {'$in': stock_hold}})
-    value = 0
+    try:
+        price_info = back_test_db.find({'datetime': tomorrow, 'name': {'$in': stock_hold}})
+    except Exception as e:
+        position_fund_info[tomorrow] = position_fund_info[today]
+        return 0
+
+    # update position_info firstly
     for item in price_info:
-        value = value + item['close'] * position_info[item['name']]['num']
+        position_info[item['name']]['market_p'] = item['close']
+
+    # then update position fund info
+    value = 0
+    for code, v in position_info.items():
+        value = value + position_info[code]['market_p'] * position_info[code]['num']
     position_fund_info[tomorrow] = value
 
     return 0
 
 
 def main():
+    logging.basicConfig(filename='back_test.log', filemode='a',
+                        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    logging.getLogger().setLevel(logging.INFO)
+
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'market_daily_status')
 
     # Initialize the trade params
@@ -78,9 +97,10 @@ def main():
     history_order = []
 
     # get the time line
-    df = pd.read_csv('./data/000001.csv')
-    df = df.rename(columns={'Unnamed: 0': 'datetime'})
-    timeline = df['datetime'].tolist()[-700:]  # roughly last 10 yrs
+    df1 = pd.read_csv('./data/000001.csv').set_index('Unnamed: 0')
+    df2 = pd.read_csv('./data/000002.csv').set_index('Unnamed: 0')
+    df = pd.concat([df1, df2], axis=1)
+    timeline = df.index.values[-700:]
     position_fund_info[timeline[0]] = 0
     monetary_fund[timeline[0]] = init_fund
     print('backtest start time:', timeline[0])
@@ -94,13 +114,19 @@ def main():
         # 检查仓位信息，确定需要止损的股票，并且操作止损
         for code, info in position_info.items():
             try:
-                
-                close_price = [item for item in back_test_db.find({'datetime':today, 'name':code})][0]['close'] # mongo return value
-            except:
-                print(today,code)
-                sys.abort('500')
+                close_price = [item for item in back_test_db.find({'datetime': today, 'name': code})][0]['close'] # mongo return value
+            except Exception as e:
+                logging.info('mongo not found.')
+                logging.info(today + ' ' + code)
+                continue
+
             if (close_price - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
-                open_price = [item for item in back_test_db.find({'datetime':tomorrow, 'name':code})][0]['open'] # mongo return value
+                try:
+                    open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open'] # mongo return value
+                except Exception as e:
+                    logging.info('mongo not found.')
+                    logging.info(tomorrow + ' ' + code)
+                    continue
 
                 # status update
                 left_fund = left_fund + open_price * position_info[code]['num']
@@ -117,10 +143,12 @@ def main():
                                 }
                 history_order.append(order_info)
 
+            # 止盈操作
+
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
         if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
-            update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
+            update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
             monetary_fund[tomorrow] = left_fund
             continue
 
@@ -161,12 +189,14 @@ def main():
                 position_info[stock_name]['price'] = avg_price
                 position_info[stock_name]['num'] = total_num
             else:
-                position_info[stock_name] = {'price': buy_price, 'num': buy_num*100}
+                position_info[stock_name] = {'price': buy_price, 'num': buy_num*100, 'market_p': buy_price}
         print(position_info)
-        update_trade_info(position_info, position_fund_info, back_test_db, tomorrow)
+        update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
         monetary_fund[tomorrow] = left_fund
 
     # evaluate the strategy
+    # convert the history_order to dataframe
+
 
 
 
