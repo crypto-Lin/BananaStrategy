@@ -8,7 +8,7 @@ import numpy as np
 import json
 import logging
 import talib
-
+from core.utils import metric
 
 def mongoClient(uri, db_name, collection_name):
     client = MongoClient(uri)
@@ -24,9 +24,9 @@ def kelly_formula(p, b):  # p获胜率 b盈亏比（不含本金的赔率）
 def calculate_win_probability(history_order):
     sdf = history_order[history_order['status'] == 'success']
     fail_count = 0
-    for k,g in sdf.groupby('code'):
+#    for k,g in sdf.groupby('code'):
 
-
+    pass
 
 
 
@@ -80,7 +80,7 @@ def update_trade_info(position_info, position_fund_info, back_test_db, today, to
 
     return 0
 
-
+@metric
 def main():
     logging.basicConfig(filename='back_test.log', filemode='a',
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -100,7 +100,7 @@ def main():
     df1 = pd.read_csv('./data/000001.csv').set_index('Unnamed: 0')
     df2 = pd.read_csv('./data/000002.csv').set_index('Unnamed: 0')
     df = pd.concat([df1, df2], axis=1)
-    timeline = df.index.values[-700:]
+    timeline = df.index.values[-100:]
     position_fund_info[timeline[0]] = 0
     monetary_fund[timeline[0]] = init_fund
     print('backtest start time:', timeline[0])
@@ -110,17 +110,11 @@ def main():
     for i in range(len(timeline) - 1):
         today = timeline[i]
         tomorrow = timeline[i + 1]
-
+        print(today)
         # 检查仓位信息，确定需要止损的股票，并且操作止损
-        for code, info in position_info.items():
-            try:
-                close_price = [item for item in back_test_db.find({'datetime': today, 'name': code})][0]['close'] # mongo return value
-            except Exception as e:
-                logging.info('mongo not found.')
-                logging.info(today + ' ' + code)
-                continue
-
-            if (close_price - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
+        for code in list(position_info.keys()):
+            
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open'] # mongo return value
                 except Exception as e:
@@ -130,8 +124,6 @@ def main():
 
                 # status update
                 left_fund = left_fund + open_price * position_info[code]['num']
-                position_info.pop(code, None)
-                # del position_info[code]
                 order_info = {
                                 'price': position_info[code]['price'],
                                 'num': position_info[code]['num'],
@@ -142,7 +134,8 @@ def main():
                                 'code': code
                                 }
                 history_order.append(order_info)
-
+                position_info.pop(code, None)
+                # del position_info[code]
             # 止盈操作
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
@@ -155,7 +148,13 @@ def main():
         for item in stock_find:
             stock_name = item['name']
             stock_info = back_test_db.find({'datetime': tomorrow, 'name': stock_name})
-            tomorrow_info = [ele for ele in stock_info][0]
+#            print(tomorrow, stock_name)
+            try:
+                tomorrow_info = [ele for ele in stock_info][0]
+            except Exception as e:
+                logging.info('mongo not found.')
+                logging.info(tomorrow+' '+stock_name)
+                continue
             buy_price = tomorrow_info['open']
             if buy_price * 100 + 5 > left_fund:
                 order_info = {
@@ -190,7 +189,7 @@ def main():
                 position_info[stock_name]['num'] = total_num
             else:
                 position_info[stock_name] = {'price': buy_price, 'num': buy_num*100, 'market_p': buy_price}
-        print(position_info)
+        # print(position_info)
         update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
         monetary_fund[tomorrow] = left_fund
 
