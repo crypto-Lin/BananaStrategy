@@ -25,7 +25,7 @@ def calculate_win_probability(history_order):
     sdf = history_order[history_order['status'] == 'success']
     fail_count = 0
     for k,g in sdf.groupby('code'):
-        
+
 
 
 
