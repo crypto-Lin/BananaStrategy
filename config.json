@@ -6,10 +6,17 @@
     "kd_feature_01",
     "kd_feature_02",
     "kd_feature_03",
+<<<<<<< HEAD
     "ema_5_10",
     "sma_5_10",
     "ema_10_20",
     "sma_10_20",
+=======
+    "sma_5_10",
+    "sma_10_20",
+    "ema_5_10",
+    "ema_10_20",
+>>>>>>> 2dfe84d944aa28c84bcdf7948160b610a12eb955
     "diff1_10",
     "diff2_10",
     "diff1_20",
@@ -60,6 +67,11 @@
     "kd_feature_01",
     "kd_feature_02",
     "kd_feature_03",
+<<<<<<< HEAD
+=======
+    "sma_5_10",
+    "sma_10_20",
+>>>>>>> 2dfe84d944aa28c84bcdf7948160b610a12eb955
     "diff1_10",
     "diff2_10",
     "diff1_20",
