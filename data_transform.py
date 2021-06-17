@@ -28,9 +28,12 @@ def main():
     train_test_split = configs['model_params']['train_test_split']
 
     for csvfile in glob.glob(os.path.join(data_path, '*.csv')):
+#        print(csvfile)
         tmpdf = pd.read_csv(csvfile)
+        
         if len(tmpdf) < 500:
             continue
+#        print(len(tmpdf))
         try:
             newdf = add_macd_factor(tmpdf)
             newdf = add_kd_factor(newdf)
@@ -49,7 +52,7 @@ def main():
             # newdf = add_eemd_factor(newdf, 10, 'close')
             # print(newdf.head())
             # newdf = add_trend_strength_factor(newdf, 100)
-            # print(newdf.head())
+#            print(newdf.head())
 #            newdf = add_macd_cross_factor(newdf)
 #            newdf = add_ma_cross_factor(newdf, 5, 10)
 #            newdf = add_ma_cross_factor(newdf, 10, 20)
@@ -62,8 +65,8 @@ def main():
                 newdf = add_roc_factor(newdf, k)
            
             newdf = newdf.dropna(axis=0, how='any')
-            # print('final \n', newdf.head())
-
+ #           print('final \n', newdf.head())
+ #           print(len(newdf))
             newdf = add_time_factor(newdf)
             newdf = add_first_raising_limit_factor(newdf)
 
@@ -72,7 +75,7 @@ def main():
             df_train = pd.concat([df_train, data_for_train[:-test_size]])
             df_test = pd.concat([df_test, data_for_train[-test_size:]])
             counter = counter + len(data_for_train)
-
+  #          print(len(data_for_train))
         except Exception as e:
             logging.error(e)
             logging.info(csvfile.split('/')[-1])
