@@ -37,18 +37,21 @@ def main():
         eval_set=[(x_train, y_train), (x_test, y_test)],
         eval_metric='logloss', # 'auc'
         early_stopping_rounds=5,
-        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=5,metric_name='logloss',save_best=True),
-                                   xgb.callback.TrainingCheckPoint(directory=save_fname,name='xbg_binary_classifier')])
+        verbose=True, callbacks = [xgb.callback.EarlyStopping(rounds=5, metric_name='logloss', save_best=True),
+                                   xgb.callback.TrainingCheckPoint(directory=save_fname, name='xbg_binary_classifier')])
 
     evaluate_result = clf.evals_result()
     print(confusion_matrix_model(clf, x_test, y_test))
+    df_test['xgb_predict'] = clf.predict(x_test)
+    df_test['xgb_predict_proba'] = clf.predict_proba(x_test)
+    df_test.to_csv('./dataset/A_stock_daily/test_with_xgb_predict.csv')
 
     # check the fit params
     print('Get underlying booster of the model:{}'.format(clf.get_booster()))
     print('Gets the number of xgboost boosting rounds:{}'.format(clf.get_num_boosting_rounds()))
     # print('Feature importance property:{}'.format(clf.feature_importances_))
     feature_importance = np.array([clf.feature_importances_])
-    print(pd.DataFrame(feature_importance , columns =configs['factor_feature_extract'][:-1]).T)
+    print(pd.DataFrame(feature_importance, columns=configs['factor_feature_extract'][:-1]).T)
     # plotting xgboost
     # xgb.plot_importance(clf)
     # xgb.plot_tree(clf)

@@ -6,17 +6,14 @@
     "kd_feature_01",
     "kd_feature_02",
     "kd_feature_03",
-<<<<<<< HEAD
     "ema_5_10",
     "sma_5_10",
     "ema_10_20",
     "sma_10_20",
-=======
     "sma_5_10",
     "sma_10_20",
     "ema_5_10",
     "ema_10_20",
->>>>>>> 2dfe84d944aa28c84bcdf7948160b610a12eb955
     "diff1_10",
     "diff2_10",
     "diff1_20",
@@ -58,7 +55,7 @@
     "train_params": {
       "learning_rate": 0.1, "max_depth": 5, "min_child_weight": 1, "seed": 0, "subsample": 0.9, "colsample_bytree": 0.9, "gamma": 5, "reg_alpha": 0.5, "reg_lambda": 0.5
    , "objective": "binary:logistic", "eval_metric": "auc" },
-    "save_dir": "saved_models"
+    "save_dir": "xgb_saved_models"
   },
  "factor_feature_extract":[
     "macd_feature_01",
@@ -67,11 +64,8 @@
     "kd_feature_01",
     "kd_feature_02",
     "kd_feature_03",
-<<<<<<< HEAD
-=======
     "sma_5_10",
     "sma_10_20",
->>>>>>> 2dfe84d944aa28c84bcdf7948160b610a12eb955
     "diff1_10",
     "diff2_10",
     "diff1_20",

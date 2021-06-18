@@ -28,12 +28,14 @@ def main():
     train_test_split = configs['model_params']['train_test_split']
 
     for csvfile in glob.glob(os.path.join(data_path, '*.csv')):
-#        print(csvfile)
+
         tmpdf = pd.read_csv(csvfile)
         
-        if len(tmpdf) < 500:
+        if len(tmpdf) < 1000:
             continue
 #        print(len(tmpdf))
+        tmpdf = tmpdf.rename(columns={'Unnamed: 0': 'datetime'})
+
         try:
             newdf = add_macd_factor(tmpdf)
             newdf = add_kd_factor(newdf)
@@ -46,7 +48,7 @@ def main():
             newdf = add_bbands_factor(newdf)
 
             newdf = add_up_pattern_recognition_factor(newdf)
-            newdf = add_down_pattern_recognition_factor((newdf))
+            newdf = add_down_pattern_recognition_factor(newdf)
             newdf = add_cycle_indicator_factor(newdf)
 
             # newdf = add_eemd_factor(newdf, 10, 'close')
@@ -65,17 +67,21 @@ def main():
                 newdf = add_roc_factor(newdf, k)
            
             newdf = newdf.dropna(axis=0, how='any')
- #           print('final \n', newdf.head())
- #           print(len(newdf))
             newdf = add_time_factor(newdf)
             newdf = add_first_raising_limit_factor(newdf)
 
-            data_for_train = newdf[feature_select]
-            test_size = int(len(newdf)*train_test_split)
-            df_train = pd.concat([df_train, data_for_train[:-test_size]])
-            df_test = pd.concat([df_test, data_for_train[-test_size:]])
+            newdf = newdf.set_index('datetime')
+            data_for_train = newdf[:'2018-06-01'][feature_select]
+            data_for_test = newdf['2018-06-01':][feature_select]
+            df_train = pd.concat([df_train, data_for_train])
+            df_test = pd.concat([df_train, data_for_test])
+
+            # data_for_train = newdf[feature_select]
+            # test_size = int(len(newdf)*train_test_split)
+            # df_train = pd.concat([df_train, data_for_train[:-test_size]])
+            # df_test = pd.concat([df_test, data_for_train[-test_size:]])
             counter = counter + len(data_for_train)
-  #          print(len(data_for_train))
+
         except Exception as e:
             logging.error(e)
             logging.info(csvfile.split('/')[-1])

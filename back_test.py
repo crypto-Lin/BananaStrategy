@@ -8,7 +8,9 @@ import numpy as np
 import json
 import logging
 import talib
+import csv
 from core.utils import metric
+
 
 def mongoClient(uri, db_name, collection_name):
     client = MongoClient(uri)
@@ -23,11 +25,32 @@ def kelly_formula(p, b):  # p获胜率 b盈亏比（不含本金的赔率）
 
 def calculate_win_probability(history_order):
     sdf = history_order[history_order['status'] == 'success']
-    fail_count = 0
-#    for k,g in sdf.groupby('code'):
+    order_count = len(sdf[sdf['operation'] == 'buy'])
+    lose_count = 0
+    win_count = 0
+    for k, g in sdf.groupby('code'):
+        g['datetime'] = pd.to_datetime('datetime')
+        g = g.sort_values('datetime')
+        print(g)
+        #break
+        count = 0
+        for i in range(len(g)):
+            if g['operation'].values[i] == 'buy':
+                count = count + 1
+                continue
+            if g['operation'].values[i] == 'sell':
+                if g['reason'].values[i] == 'stop_loss':
+                    lose_count = lose_count + count
+                else:
+                    win_count = win_count + count
+                count = 0
+    try:
+        assert (order_count == (win_count + lose_count))
+    except Exception as e:
+        raise e
 
-    pass
-
+    win_rate = round(win_count / order_count, 2)
+    return order_count, win_rate
 
 
 def evaluate_fund_curve(position_fund_info, monetary_fund):
@@ -113,7 +136,8 @@ def main():
         print(today)
         # 检查仓位信息，确定需要止损的股票，并且操作止损
         for code in list(position_info.keys()):
-            
+
+            # 止损操作
             if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open'] # mongo return value
@@ -127,7 +151,7 @@ def main():
                 order_info = {
                                 'price': position_info[code]['price'],
                                 'num': position_info[code]['num'],
-                                'reason': 'stop loss',
+                                'reason': 'stop_loss',
                                 'status': 'success',
                                 'operation': 'sell',
                                 'datetime': tomorrow,
@@ -136,7 +160,29 @@ def main():
                 history_order.append(order_info)
                 position_info.pop(code, None)
                 # del position_info[code]
+
             # 止盈操作
+            # if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.4:
+            #     try:
+            #         open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open']  # mongo return value
+            #     except Exception as e:
+            #         logging.info('mongo not found.')
+            #         logging.info(tomorrow + ' ' + code)
+            #         continue
+            #
+            #     # status update
+            #     left_fund = left_fund + open_price * position_info[code]['num']
+            #     order_info = {
+            #         'price': position_info[code]['price'],
+            #         'num': position_info[code]['num'],
+            #         'reason': 'stop_profit',
+            #         'status': 'success',
+            #         'operation': 'sell',
+            #         'datetime': tomorrow,
+            #         'code': code
+            #     }
+            #     history_order.append(order_info)
+            #     position_info.pop(code, None)
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
@@ -195,8 +241,21 @@ def main():
 
     # evaluate the strategy
     # convert the history_order to dataframe
+    keys = history_order[0].keys()
+    with open('history_order.csv', 'w', newline='') as output_file:
+        dict_writer = csv.DictWriter(output_file, keys)
+        dict_writer.writeheader()
+        dict_writer.writerows(history_order)
+    df_history_order = pd.read_csv('history_order.csv')
 
-
+    print("backtest evaluation: ")
+    tot_order, win_rate = calculate_win_probability(df_history_order)
+    print("total order num: ", tot_order)
+    print("win_rate: ", win_rate)
+    annualized_r, max_drawback, df_sharpe = evaluate_fund_curve(position_fund_info, monetary_fund)
+    print("annualized return: ", annualized_r)
+    print("max drawback: ", max_drawback)
+    print("annualized sharpe: ", df_sharpe)
 
 
 if __name__ == '__main__':
