@@ -144,3 +144,4 @@ dataset/A_stock_daily/train.csv
 data/
 dataset/
 saved_models/
+*.csv

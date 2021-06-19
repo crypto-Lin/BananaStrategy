@@ -120,7 +120,7 @@ def main():
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
 
     # Initialize the trade params
-    init_fund = 1000000
+    init_fund = 2000000
     left_fund = init_fund
     position_info = {}  # record the position in detail: which stocks and how much in hand
     position_fund_info = {}  # record the fund in position varies in history
@@ -196,7 +196,7 @@ def main():
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         # stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
-        stock_find = back_test_db.find({'datetime': today, 'xgb_predict': {'$gt': 0}}).sort([('xgb_predict_proba', -1)])
+        stock_find = back_test_db.find({'datetime': today, 'xgb_predict': {'$gt': 0}}).sort([('xgb_predict_proba', -1)]).limit(100)
         # if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
         if back_test_db.count_documents({'datetime': today, 'xgb_predict': {'$gt': 0}}) == 0:  # no market signal today
             update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
