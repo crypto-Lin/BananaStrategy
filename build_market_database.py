@@ -28,6 +28,10 @@ def main():
 
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
     df = pd.read_csv(data_path)
+    df['code'] = [('00000'+str(ele))[-6:] for ele in df['code'].tolist()]
+    print(df.dtypes)
+#    assert(1>9)
+    del df['Unnamed: 0']
     count = 0
     try:
         for index, row in df.iterrows():

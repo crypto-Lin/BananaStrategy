@@ -116,7 +116,8 @@ def main():
                         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logging.getLogger().setLevel(logging.INFO)
 
-    back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'market_daily_status')
+    # back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'market_daily_status')
+    back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
 
     # Initialize the trade params
     init_fund = 1000000
@@ -130,7 +131,8 @@ def main():
     df1 = pd.read_csv('./data/000001.csv').set_index('Unnamed: 0')
     df2 = pd.read_csv('./data/000002.csv').set_index('Unnamed: 0')
     df = pd.concat([df1, df2], axis=1)
-    timeline = df.index.values[-1000:]
+    # timeline = df.index.values[-1000:]
+    timeline = df['2018-06-01':].index.values
     position_fund_info[timeline[0]] = 0
     monetary_fund[timeline[0]] = init_fund
     print('backtest start time:', timeline[0])
@@ -145,7 +147,7 @@ def main():
         for code in list(position_info.keys()):
 
             # 止损操作
-            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.05:  # %20 stop loss
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open'] # mongo return value
                 except Exception as e:
@@ -170,7 +172,7 @@ def main():
                 continue
 
             # 止盈操作
-            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.4 :
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.1 :
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open']  # mongo return value
                 except Exception as e:
@@ -193,8 +195,10 @@ def main():
                 position_info.pop(code, None)
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
-        stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
-        if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
+        # stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
+        stock_find = back_test_db.find({'datetime': today, 'xgb_predict': {'$gt': 0}}).sort([('xgb_predict_proba', -1)])
+        # if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
+        if back_test_db.count_documents({'datetime': today, 'xgb_predict': {'$gt': 0}}) == 0:  # no market signal today
             update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
             monetary_fund[tomorrow] = left_fund
             continue

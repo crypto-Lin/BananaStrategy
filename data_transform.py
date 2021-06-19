@@ -80,7 +80,7 @@ def main():
             newdf = add_first_raising_limit_factor(newdf)
 
             newdf = newdf.set_index('datetime')
-            newdf['code'] = [code] * len(newdf)
+            newdf['code'] = [str(code)] * len(newdf)
             data_for_train = newdf[:'2018-06-01'].reset_index()[feature_select]
             data_for_test = newdf['2018-06-01':].reset_index()[feature_select]
             df_train = pd.concat([df_train, data_for_train])

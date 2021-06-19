@@ -20,7 +20,8 @@ def main():
     save_fname = os.path.join(save_dir, '%s-e%s.h5' % (dt.datetime.now().strftime('%d%m%Y-%H%M%S'), 'xgb'))
 
     df_train = pd.read_csv(train_file_path)
-    # df_train = df_train[(df_train['morning_doji_star']==1) | (df_train['evening_doji_star']==1)]
+    print(df_train.dtypes)
+# df_train = df_train[(df_train['morning_doji_star']==1) | (df_train['evening_doji_star']==1)]
     x_train = df_train[configs['factor_feature_extract'][:-1]]
     y_train = df_train[configs['factor_feature_extract'][-1]]
     print('训练目标值分布：')
@@ -28,6 +29,7 @@ def main():
 
     df_test = pd.read_csv(test_file_path)
     print(len(df_train), len(df_test))
+    print(df_test.dtypes)
     # df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
     x_test = df_test[configs['factor_feature_extract'][:-1]]
     y_test = df_test[configs['factor_feature_extract'][-1]]
@@ -47,8 +49,9 @@ def main():
     print(confusion_matrix_model(clf, x_test, y_test))
     df_test['xgb_predict'] = clf.predict(x_test)
     df_test['xgb_predict_proba'] = clf.predict_proba(x_test)[:, 1]
-    df_test[['code','open','close','high','low','datetime','xgb_predict','xgb_predict_proba']].to_csv('./dataset/A_stock_daily/test_with_xgb_predict.csv')
-
+    df_test['code'] = [('00000'+str(ele))[-6:] for ele in df_test['code'].tolist()]
+    df_test[['code','open','close','high','low','datetime','xgb_predict','xgb_predict_proba']].round(2).to_csv('./dataset/A_stock_daily/test_with_xgb_predict.csv')
+    print(df_test.dtypes)    
     # check the fit params
     print('Get underlying booster of the model:{}'.format(clf.get_booster()))
     print('Gets the number of xgboost boosting rounds:{}'.format(clf.get_num_boosting_rounds()))
