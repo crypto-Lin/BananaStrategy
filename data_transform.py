@@ -7,11 +7,19 @@ import os
 import pandas as pd
 import json
 import logging
+import pymongo
+from pymongo import MongoClient
 
 pd.options.mode.chained_assignment = None  # default='warn'
 
 data_path = 'data'
 configs = json.load(open('config.json', 'r'))
+
+def mongoClient(uri, db_name, collection_name):
+    client = MongoClient(uri)
+    db = client[db_name]
+    collection = db[collection_name]
+    return collection
 
 
 def main():
@@ -30,6 +38,7 @@ def main():
     for csvfile in glob.glob(os.path.join(data_path, '*.csv')):
 
         tmpdf = pd.read_csv(csvfile)
+        code = csvfile.split('.')[0].split('/')[-1]
         
         if len(tmpdf) < 1000:
             continue
@@ -71,10 +80,11 @@ def main():
             newdf = add_first_raising_limit_factor(newdf)
 
             newdf = newdf.set_index('datetime')
-            data_for_train = newdf[:'2018-06-01'][feature_select]
-            data_for_test = newdf['2018-06-01':][feature_select]
+            newdf['code'] = [code] * len(newdf)
+            data_for_train = newdf[:'2018-06-01'].reset_index()[feature_select]
+            data_for_test = newdf['2018-06-01':].reset_index()[feature_select]
             df_train = pd.concat([df_train, data_for_train])
-            df_test = pd.concat([df_train, data_for_test])
+            df_test = pd.concat([df_test, data_for_test])
 
             # data_for_train = newdf[feature_select]
             # test_size = int(len(newdf)*train_test_split)

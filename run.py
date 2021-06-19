@@ -27,9 +27,12 @@ def main():
     print(y_train.value_counts())
 
     df_test = pd.read_csv(test_file_path)
+    print(len(df_train), len(df_test))
     # df_test = df_test[(df_test['macd_cross_up_signal']==1) | (df_test['macd_cross_down_signal']==1)]
     x_test = df_test[configs['factor_feature_extract'][:-1]]
     y_test = df_test[configs['factor_feature_extract'][-1]]
+    print('测试集目标值分布：')
+    print(y_test.value_counts())
 
     train_params = configs['model_params']['train_params']
     clf = xgb.XGBClassifier(**train_params)
@@ -43,8 +46,8 @@ def main():
     evaluate_result = clf.evals_result()
     print(confusion_matrix_model(clf, x_test, y_test))
     df_test['xgb_predict'] = clf.predict(x_test)
-    df_test['xgb_predict_proba'] = clf.predict_proba(x_test)
-    df_test.to_csv('./dataset/A_stock_daily/test_with_xgb_predict.csv')
+    df_test['xgb_predict_proba'] = clf.predict_proba(x_test)[:, 1]
+    df_test[['code','open','close','high','low','datetime','xgb_predict','xgb_predict_proba']].to_csv('./dataset/A_stock_daily/test_with_xgb_predict.csv')
 
     # check the fit params
     print('Get underlying booster of the model:{}'.format(clf.get_booster()))

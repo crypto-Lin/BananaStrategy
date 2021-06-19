@@ -28,8 +28,14 @@ def main():
 
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
     df = pd.read_csv(data_path)
+    count = 0
     try:
-        back_test_db.insert_many([row.to_dict() for index, row in df.iterrows()])
+        for index, row in df.iterrows():
+            back_test_db.insert_one(row.to_dict())
+            count = count + 1
+            if(count%1000==0):
+                print(count)
+        #back_test_db.insert_many([row.to_dict() for index, row in df.iterrows()])
     except Exception as e:
         logging.error('insert mongodb error!')
         logging.info(e)

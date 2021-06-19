@@ -1,5 +1,6 @@
 {
   "factor_feature_extract_all":[
+    "code","open","close","high","low","datetime",
     "macd_feature_01",
     "macd_feature_02",
     "macd_feature_03",
@@ -10,10 +11,6 @@
     "sma_5_10",
     "ema_10_20",
     "sma_10_20",
-    "sma_5_10",
-    "sma_10_20",
-    "ema_5_10",
-    "ema_10_20",
     "diff1_10",
     "diff2_10",
     "diff1_20",

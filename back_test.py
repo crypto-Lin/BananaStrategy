@@ -10,6 +10,7 @@ import logging
 import talib
 import csv
 from core.utils import metric
+pd.options.mode.chained_assignment = None  # default='warn'
 
 
 def mongoClient(uri, db_name, collection_name):
@@ -28,27 +29,33 @@ def calculate_win_probability(history_order):
     order_count = len(sdf[sdf['operation'] == 'buy'])
     lose_count = 0
     win_count = 0
+    
     for k, g in sdf.groupby('code'):
-        g['datetime'] = pd.to_datetime('datetime')
+        g['datetime'] = pd.to_datetime(g['datetime'])
         g = g.sort_values('datetime')
-        print(g)
-        #break
+        
         count = 0
+        flag = True
         for i in range(len(g)):
             if g['operation'].values[i] == 'buy':
                 count = count + 1
                 continue
             if g['operation'].values[i] == 'sell':
+                flag = False
                 if g['reason'].values[i] == 'stop_loss':
                     lose_count = lose_count + count
                 else:
                     win_count = win_count + count
                 count = 0
+        if flag:
+            win_count = win_count + count
+            flag = True
     try:
         assert (order_count == (win_count + lose_count))
     except Exception as e:
+        print(order_count, win_count, lose_count)
         raise e
-
+        
     win_rate = round(win_count / order_count, 2)
     return order_count, win_rate
 
@@ -77,10 +84,10 @@ def evaluate_fund_curve(position_fund_info, monetary_fund):
 
     # annualized return 累计收益率
     total_r = round(df.iloc[-1]['fund']/df.iloc[0]['fund'], 2)
-    yrs = round(int(str(df.iloc['datetime'][-1]-df.iloc['datetime'][0]).split(' ')[0])/365, 2)
+    yrs = round(int(str(df.iloc[-1]['datetime'] - df.iloc[0]['datetime']).split(' ')[0])/365, 2)
     annualized_r = pow(total_r, round(1/yrs, 2)) - 1
 
-    return annualized_r, max_drawback, df_sharpe
+    return round(annualized_r*100, 2), round(max_drawback, 2), df_sharpe.round(2)
 
 
 def update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow):
@@ -123,7 +130,7 @@ def main():
     df1 = pd.read_csv('./data/000001.csv').set_index('Unnamed: 0')
     df2 = pd.read_csv('./data/000002.csv').set_index('Unnamed: 0')
     df = pd.concat([df1, df2], axis=1)
-    timeline = df.index.values[-100:]
+    timeline = df.index.values[-1000:]
     position_fund_info[timeline[0]] = 0
     monetary_fund[timeline[0]] = init_fund
     print('backtest start time:', timeline[0])
@@ -160,29 +167,30 @@ def main():
                 history_order.append(order_info)
                 position_info.pop(code, None)
                 # del position_info[code]
+                continue
 
             # 止盈操作
-            # if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.4:
-            #     try:
-            #         open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open']  # mongo return value
-            #     except Exception as e:
-            #         logging.info('mongo not found.')
-            #         logging.info(tomorrow + ' ' + code)
-            #         continue
-            #
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.4 :
+                try:
+                    open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open']  # mongo return value
+                except Exception as e:
+                    logging.info('mongo not found.')
+                    logging.info(tomorrow + ' ' + code)
+                    continue
+            
             #     # status update
-            #     left_fund = left_fund + open_price * position_info[code]['num']
-            #     order_info = {
-            #         'price': position_info[code]['price'],
-            #         'num': position_info[code]['num'],
-            #         'reason': 'stop_profit',
-            #         'status': 'success',
-            #         'operation': 'sell',
-            #         'datetime': tomorrow,
-            #         'code': code
-            #     }
-            #     history_order.append(order_info)
-            #     position_info.pop(code, None)
+                left_fund = left_fund + open_price * position_info[code]['num']
+                order_info = {
+                     'price': position_info[code]['price'],
+                     'num': position_info[code]['num'],
+                     'reason': 'stop_profit',
+                     'status': 'success',
+                     'operation': 'sell',
+                     'datetime': tomorrow,
+                     'code': code
+                 }
+                history_order.append(order_info)
+                position_info.pop(code, None)
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
@@ -249,11 +257,14 @@ def main():
     df_history_order = pd.read_csv('history_order.csv')
 
     print("backtest evaluation: ")
-    tot_order, win_rate = calculate_win_probability(df_history_order)
-    print("total order num: ", tot_order)
-    print("win_rate: ", win_rate)
+    try:
+        tot_order, win_rate = calculate_win_probability(df_history_order)
+        print("total order num: ", tot_order)
+        print("win_rate: ", win_rate)
+    except:
+        pass
     annualized_r, max_drawback, df_sharpe = evaluate_fund_curve(position_fund_info, monetary_fund)
-    print("annualized return: ", annualized_r)
+    print("annualized return: {} %".format(annualized_r))
     print("max drawback: ", max_drawback)
     print("annualized sharpe: ", df_sharpe)
 
