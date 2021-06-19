@@ -87,6 +87,7 @@ def evaluate_fund_curve(position_fund_info, monetary_fund):
     yrs = round(int(str(df.iloc[-1]['datetime'] - df.iloc[0]['datetime']).split(' ')[0])/365, 2)
     annualized_r = pow(total_r, round(1/yrs, 2)) - 1
 
+    df.to_csv('./dataset/position_info.csv')
     return round(annualized_r*100, 2), round(max_drawback, 2), df_sharpe.round(2)
 
 
@@ -120,7 +121,7 @@ def main():
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
 
     # Initialize the trade params
-    init_fund = 2000000
+    init_fund = 10000000
     left_fund = init_fund
     position_info = {}  # record the position in detail: which stocks and how much in hand
     position_fund_info = {}  # record the fund in position varies in history
@@ -258,7 +259,7 @@ def main():
         dict_writer = csv.DictWriter(output_file, keys)
         dict_writer.writeheader()
         dict_writer.writerows(history_order)
-    df_history_order = pd.read_csv('history_order.csv')
+    df_history_order = pd.read_csv('./dataset/history_order.csv')
 
     print("backtest evaluation: ")
     try:
