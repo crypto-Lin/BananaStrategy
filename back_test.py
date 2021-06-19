@@ -254,7 +254,7 @@ def main():
     # evaluate the strategy
     # convert the history_order to dataframe
     keys = history_order[0].keys()
-    with open('history_order.csv', 'w', newline='') as output_file:
+    with open('./dataset/history_order.csv', 'w', newline='') as output_file:
         dict_writer = csv.DictWriter(output_file, keys)
         dict_writer.writeheader()
         dict_writer.writerows(history_order)
