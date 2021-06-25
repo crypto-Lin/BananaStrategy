@@ -35,25 +35,23 @@ def calculate_win_probability(history_order):
         g = g.sort_values('datetime')
         
         count = 0
-        flag = True
         for i in range(len(g)):
             if g['operation'].values[i] == 'buy':
                 count = count + 1
                 continue
             if g['operation'].values[i] == 'sell':
-                flag = False
+                
                 if g['reason'].values[i] == 'stop_loss':
                     lose_count = lose_count + count
                 else:
                     win_count = win_count + count
                 count = 0
-        if flag:
-            win_count = win_count + count
-            flag = True
+        win_count = win_count + count
+            
     try:
         assert (order_count == (win_count + lose_count))
     except Exception as e:
-        print(order_count, win_count, lose_count)
+        print(order_count, cc1, win_count, lose_count,cc)
         raise e
         
     win_rate = round(win_count / order_count, 2)
@@ -121,7 +119,7 @@ def main():
     back_test_db = mongoClient('mongodb://localhost:27017/', 'Astock', 'xgb_daily_status')
 
     # Initialize the trade params
-    init_fund = 10000000
+    init_fund = 100000000
     left_fund = init_fund
     position_info = {}  # record the position in detail: which stocks and how much in hand
     position_fund_info = {}  # record the fund in position varies in history
@@ -148,7 +146,7 @@ def main():
         for code in list(position_info.keys()):
 
             # 止损操作
-            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.05:  # %20 stop loss
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] < -0.2:  # %20 stop loss
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open'] # mongo return value
                 except Exception as e:
@@ -173,7 +171,7 @@ def main():
                 continue
 
             # 止盈操作
-            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.1 :
+            if (position_info[code]['market_p'] - position_info[code]['price']) / position_info[code]['price'] > 0.3 :
                 try:
                     open_price = [item for item in back_test_db.find({'datetime': tomorrow, 'name': code})][0]['open']  # mongo return value
                 except Exception as e:
@@ -197,7 +195,7 @@ def main():
 
         # 检查市场信号，确定要进场的股票，并且操作买入（手续费每笔5）
         # stock_find = back_test_db.find({'datetime': today, 'score': {'$gt': 4}}).sort([('score', -1)])
-        stock_find = back_test_db.find({'datetime': today, 'xgb_predict': {'$gt': 0}}).sort([('xgb_predict_proba', -1)]).limit(100)
+        stock_find = back_test_db.find({'datetime': today, 'xgb_predict': {'$gt': 0}}).sort([('xgb_predict_proba', -1)]).limit(300)
         # if back_test_db.count_documents({'datetime': today, 'score': {'$gt': 4}}) == 0:  # no market signal today
         if back_test_db.count_documents({'datetime': today, 'xgb_predict': {'$gt': 0}}) == 0:  # no market signal today
             update_trade_info(position_info, position_fund_info, back_test_db, today, tomorrow)
@@ -229,6 +227,8 @@ def main():
                 continue
 
             buy_num = min(np.floor(left_fund/buy_price/100), np.floor(10000/buy_price/100))  # 等权买入10000
+            if buy_num == 0:
+                buy_num = 1
             order_info = {
                             'price': buy_price,
                             'num': buy_num * 100,
@@ -243,7 +243,12 @@ def main():
             if stock_name in position_info:
                 total_num = buy_num*100 + position_info[stock_name]['num']
                 total_cost = (position_info[stock_name]['num']*position_info[stock_name]['price']+buy_price*buy_num*100)
-                avg_price = round(total_cost / total_num, 2)
+                try: 
+                    assert(total_num > 0)
+                    avg_price = round(total_cost / total_num, 2)
+                except:
+                    print(total_num, total_cost, stock_name)
+                    print(position_info[stock_name]['num'],buy_num)
                 position_info[stock_name]['price'] = avg_price
                 position_info[stock_name]['num'] = total_num
             else:
